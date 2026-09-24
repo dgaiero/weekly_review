@@ -1,0 +1,20 @@
+# Team Weekly Status: {{ report.week }}
+
+## Portfolio
+
+{% include 'overview.md.j2' %}{% if report.warnings %}
+
+## Reporting notes
+
+{% include 'warnings.md.j2' %}{% endif %}{% for item in report.efforts %}
+
+## {{ item.effort.name | literal }}
+
+Lead: {{ item.effort.lead.name | literal }}  
+Status: {{ item.effort.status.value | replace('_', ' ') }}{% if item.update is none %}
+
+{% include 'missing-update.md.j2' %}{% else %}{% for section in sections %}
+
+### {{ section }}
+
+{{ item.update.sections[section] or 'Not provided.' }}{% endfor %}{% endif %}{% endfor %}

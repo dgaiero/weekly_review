@@ -1,0 +1,14 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "week": {
+      "title": "Week",
+      "type": "string"
+    }
+  },
+  "required": [
+    "week"
+  ],
+  "title": "WeekMetadata",
+  "type": "object"
+}

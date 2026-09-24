@@ -1,0 +1,25 @@
+schema_version: 1
+id: project-alpha
+name: Project Alpha (fictional example)
+status: active
+lead:
+  name: Jane Smith
+  gitlab: jsmith
+customer:
+  organization: Example Customer
+  poc:
+    name: John Doe
+funding:
+  - source: IRAD
+    amount: 350000
+dates:
+  start: 2026-01-15
+  end: 2026-12-31
+team:
+  - name: Jane Smith
+    gitlab: jsmith
+    commitment: 0.4
+  - name: Alex Jones
+    gitlab: ajones
+    commitment: 0.25
+tags: [example]

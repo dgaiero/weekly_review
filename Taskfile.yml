@@ -1,0 +1,56 @@
+version: '3'
+
+env:
+  UV_CACHE_DIR: '{{.ROOT_DIR}}/.uv-cache'
+
+tasks:
+  default:
+    cmds: [task --list]
+  setup:
+    desc: Install the locked Python environment
+    cmds: [uv sync --locked]
+  test:
+    desc: Run the test suite
+    cmds: [uv run --locked pytest]
+  lint:
+    desc: Check Python style and formatting
+    cmds:
+      - uv run --locked ruff check .
+      - uv run --locked ruff format --check .
+  format:
+    desc: Format Python sources
+    cmds: [uv run --locked ruff format .]
+  validate:
+    desc: Validate the portfolio (optional -- --week YYYY-Www)
+    cmds: ['uv run --locked team-status validate {{.CLI_ARGS}}']
+  build:
+    desc: Build JSON, slide Markdown, email Markdown and HTML (optional -- --week YYYY-Www)
+    cmds: ['uv run --locked team-status build-week {{.CLI_ARGS}}']
+  schema:
+    desc: Export JSON schemas from the Pydantic contracts
+    cmds: [uv run --locked team-status schema]
+  check:
+    desc: Run lint, tests, and portfolio validation
+    cmds:
+      - task: lint
+      - task: test
+      - task: validate
+  demo:
+    desc: Build the fictional example week outside the live portfolio
+    cmds:
+      - uv run --locked team-status build-week --root examples --week 2026-W39 --output build/demo
+  slides:setup:
+    desc: Install pinned Marp tools (requires Node 22+ and pnpm)
+    cmds: [pnpm install --frozen-lockfile]
+  pptx:
+    desc: Export slide Markdown to PowerPoint (task pptx -- build/2026-W39/slides.md)
+    preconditions:
+      - sh: 'test -n {{.CLI_ARGS | shellQuote}}'
+        msg: Pass a slides.md path after --
+    cmds: ['pnpm exec marp --pptx {{.CLI_ARGS}}']
+  slides:html:
+    desc: Preview slides as HTML (task slides:html -- build/2026-W39/slides.md)
+    preconditions:
+      - sh: 'test -n {{.CLI_ARGS | shellQuote}}'
+        msg: Pass a slides.md path after --
+    cmds: ['pnpm exec marp {{.CLI_ARGS}}']

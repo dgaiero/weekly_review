@@ -1,0 +1,3 @@
+{% for status, count in overview.counts.items() %}- {{ status }}: {{ count }}
+{% endfor %}- Total funding: {{ '{:,}'.format(overview.funding) }} currency units
+- Active staffing: {{ '{:g}'.format(overview.staffing) }} FTE

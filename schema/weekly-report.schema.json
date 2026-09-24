@@ -1,0 +1,316 @@
+{
+  "$defs": {
+    "Customer": {
+      "additionalProperties": false,
+      "properties": {
+        "organization": {
+          "minLength": 1,
+          "title": "Organization",
+          "type": "string"
+        },
+        "poc": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Person"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "organization"
+      ],
+      "title": "Customer",
+      "type": "object"
+    },
+    "DateRange": {
+      "additionalProperties": false,
+      "properties": {
+        "start": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Start"
+        },
+        "end": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "End"
+        }
+      },
+      "title": "DateRange",
+      "type": "object"
+    },
+    "Effort": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "id": {
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+          "title": "Id",
+          "type": "string"
+        },
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/$defs/EffortStatus"
+        },
+        "lead": {
+          "$ref": "#/$defs/Person"
+        },
+        "customer": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Customer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "funding": {
+          "items": {
+            "$ref": "#/$defs/Funding"
+          },
+          "title": "Funding",
+          "type": "array"
+        },
+        "dates": {
+          "$ref": "#/$defs/DateRange"
+        },
+        "team": {
+          "items": {
+            "$ref": "#/$defs/TeamMember"
+          },
+          "title": "Team",
+          "type": "array"
+        },
+        "tags": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "title": "Tags",
+          "type": "array"
+        },
+        "funding_total": {
+          "readOnly": true,
+          "title": "Funding Total",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "schema_version",
+        "id",
+        "name",
+        "status",
+        "lead",
+        "dates",
+        "funding_total"
+      ],
+      "title": "Effort",
+      "type": "object"
+    },
+    "EffortStatus": {
+      "enum": [
+        "proposed",
+        "active",
+        "on_hold",
+        "completed",
+        "cancelled"
+      ],
+      "title": "EffortStatus",
+      "type": "string"
+    },
+    "Funding": {
+      "additionalProperties": false,
+      "properties": {
+        "source": {
+          "minLength": 1,
+          "title": "Source",
+          "type": "string"
+        },
+        "amount": {
+          "minimum": 0,
+          "title": "Amount",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "source",
+        "amount"
+      ],
+      "title": "Funding",
+      "type": "object"
+    },
+    "Person": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "gitlab": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Gitlab"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "Person",
+      "type": "object"
+    },
+    "ReportEffort": {
+      "additionalProperties": false,
+      "properties": {
+        "effort": {
+          "$ref": "#/$defs/Effort"
+        },
+        "update": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/WeeklyStatus"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "effort",
+        "update"
+      ],
+      "title": "ReportEffort",
+      "type": "object"
+    },
+    "TeamMember": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "gitlab": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Gitlab"
+        },
+        "commitment": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Commitment",
+          "type": "number"
+        }
+      },
+      "required": [
+        "name",
+        "commitment"
+      ],
+      "title": "TeamMember",
+      "type": "object"
+    },
+    "WeeklyStatus": {
+      "additionalProperties": false,
+      "properties": {
+        "week": {
+          "title": "Week",
+          "type": "string"
+        },
+        "sections": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Sections",
+          "type": "object"
+        }
+      },
+      "required": [
+        "week",
+        "sections"
+      ],
+      "title": "WeeklyStatus",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "week": {
+      "title": "Week",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "efforts": {
+      "items": {
+        "$ref": "#/$defs/ReportEffort"
+      },
+      "title": "Efforts",
+      "type": "array"
+    },
+    "warnings": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Warnings",
+      "type": "array"
+    }
+  },
+  "required": [
+    "week",
+    "efforts",
+    "warnings"
+  ],
+  "title": "WeeklyReport",
+  "type": "object"
+}

@@ -1,0 +1,8 @@
+{
+  "name": "team-status-report-tools",
+  "private": true,
+  "packageManager": "pnpm@11.19.0",
+  "description": "Marp export tools for the Python weekly report pipeline",
+  "engines": { "node": ">=22" },
+  "devDependencies": { "@marp-team/marp-cli": "4.5.1" }
+}

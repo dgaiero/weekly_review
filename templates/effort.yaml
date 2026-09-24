@@ -1,0 +1,14 @@
+schema_version: 1
+id: new-effort
+name: New Effort
+status: proposed
+lead:
+  name: Replace with effort lead
+  gitlab: null
+customer: null
+funding: []
+dates:
+  start: null
+  end: null
+team: []
+tags: []

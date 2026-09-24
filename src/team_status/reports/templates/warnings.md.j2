@@ -1,0 +1,2 @@
+{% for warning in report.warnings %}- {{ warning | literal }}{% if not loop.last %}
+{% endif %}{% endfor %}

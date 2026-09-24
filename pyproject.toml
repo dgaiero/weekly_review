@@ -1,0 +1,28 @@
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "team-status"
+version = "0.1.0"
+description = "Git-backed effort tracking and weekly team status"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = ["pydantic>=2.11,<3", "PyYAML>=6.0.2,<7", "markdown-it-py>=3,<5", "Jinja2>=3.1.6,<4", "MarkupSafe>=2.1,<4"]
+
+[project.scripts]
+team-status = "team_status.cli:main"
+
+[dependency-groups]
+dev = ["pytest>=8,<10", "ruff>=0.11,<1"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+extend-exclude = ["node_modules", ".pnpm-store", ".uv-cache", ".browsers"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

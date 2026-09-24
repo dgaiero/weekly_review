@@ -1,0 +1,5 @@
+- Lead: {{ effort.lead.name | literal }}
+- Status: {{ effort.status.value | replace('_', ' ') }}
+- Funding: {{ '{:,}'.format(effort.funding_total) }} currency units
+- Staffing: {{ '{:g}'.format(effort.team | sum(attribute='commitment')) }} FTE{% if effort.customer %}
+- Customer: {{ effort.customer.organization | literal }}{% endif %}

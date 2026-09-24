@@ -1,0 +1,69 @@
+stages: [check, report, render]
+
+default:
+  image: ghcr.io/astral-sh/uv:python3.12-bookworm-slim
+  before_script:
+    - uv sync --locked
+  cache:
+    key:
+      files: [uv.lock]
+    paths: [.uv-cache/]
+
+variables:
+  UV_CACHE_DIR: .uv-cache
+  UV_LINK_MODE: copy
+
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+    - if: '$CI_PIPELINE_SOURCE == "web"'
+    - if: '$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS'
+      when: never
+    - if: '$CI_COMMIT_BRANCH'
+
+check:
+  stage: check
+  script:
+    - uv run --locked ruff check .
+    - uv run --locked ruff format --check .
+    - uv run --locked pytest
+    - uv run --locked team-status validate
+    - uv run --locked team-status schema
+    - git diff --exit-code -- schema/
+
+weekly-report:
+  stage: report
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+    - if: '$CI_PIPELINE_SOURCE == "web" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+  script:
+    - uv run --locked team-status build-week
+  artifacts:
+    name: 'weekly-status-$CI_COMMIT_SHORT_SHA'
+    paths: [build/]
+    expire_in: 90 days
+
+weekly-powerpoint:
+  stage: render
+  image:
+    name: ghcr.io/marp-team/marp-cli:v4.5.1
+    entrypoint: [""]
+  before_script: []
+  cache: []
+  needs:
+    - job: weekly-report
+      artifacts: true
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+    - if: '$CI_PIPELINE_SOURCE == "web" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+  script:
+    - mkdir -p /home/marp/app/reports
+    - cp -R build/. /home/marp/app/reports/
+    - chown -R marp:marp /home/marp/app/reports
+    - docker-entrypoint --pptx /home/marp/app/reports/*/slides.md
+    - cp -R /home/marp/app/reports/. build/
+  artifacts:
+    name: 'weekly-reports-$CI_COMMIT_SHORT_SHA'
+    paths: [build/]
+    expire_in: 90 days
