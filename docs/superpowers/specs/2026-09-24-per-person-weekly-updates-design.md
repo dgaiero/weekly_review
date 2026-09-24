@@ -1,6 +1,6 @@
 # Per-person weekly updates
 
-Status: proposed written spec; conversational requirements approved.
+Status: implemented with NTID identity; verification recorded in the implementation plan.
 
 ## Purpose and agreed behavior
 
@@ -26,15 +26,15 @@ For example, the fictional contributor file `status/2026-W39/alex.md` begins:
 week: 2026-W39
 author:
   name: Alex Example
-  gitlab: alex
+  ntid: alex
 ---
 ```
 
-Reuse `Person`: name is required and GitLab username is optional. The five current
+Reuse `Person`: name is required and NTID (`ntid`) is optional. The five current
 H2 sections and all current Markdown validation rules remain. The week directory
 must match front matter. The filename is a nonempty lowercase slug chosen by the
 contributor, not an identity credential; front matter determines identity.
-Documentation recommends a stable filename derived from the username or name.
+Documentation recommends a stable filename derived from the NTID or name.
 
 Legacy `status/YYYY-Www.md` files retain their existing format and filename/week
 validation. They may omit author; omitted attribution is represented as null.
@@ -44,9 +44,9 @@ author. No existing source files are automatically migrated.
 
 ## Identity, completeness, and compatibility decisions
 
-Use the existing staffing identity rule everywhere: case-folded GitLab username
+Use the same identity rule for staffing and submissions: case-folded NTID
 when present, otherwise stripped, case-folded name, with distinct key namespaces.
-Do not fall back to name when only one side supplies a username; documentation
+Do not fall back to name when only one side supplies an NTID; documentation
 instructs contributors to copy their person metadata from the team roster.
 
 Duplicate author identity within an effort/week is an error, even across legacy
@@ -70,6 +70,15 @@ was superseded. Validate all stored updates, including historical duplicates,
 but calculate missing-submission warnings only for the requested week.
 
 ## Contracts and data flow
+
+Rename `Person.gitlab` to `Person.ntid` throughout the implementation,
+including effort leads, team members, customer contacts, author metadata,
+staffing calculations, templates, schemas, tests, and fictional examples.
+New input and output contracts use `ntid`. A GitLab username is not assumed to be
+an NTID: existing person metadata using `gitlab` must be explicitly updated with
+the correct NTID or omit the optional identifier. Do not automatically copy
+GitLab usernames into NTID fields. Document this input migration alongside the
+report contract change; unattributed legacy weekly Markdown remains supported.
 
 Keep `WeekMetadata` focused on the week so `WeeklyReport` does not acquire an author
 field through inheritance. Add separate front-matter models for required-author
@@ -97,7 +106,7 @@ Document the JSON version change and new collection field for downstream users.
 ## Presentation
 
 Email Markdown and HTML group by effort, then author, then the five sections.
-Display the authored name and optional GitLab username as escaped metadata.
+Display the authored name and optional NTID as escaped metadata.
 Label null-author content as "Legacy update — author not recorded".
 
 Slides show effort metadata once, followed by each contributor's five sections.
@@ -126,9 +135,9 @@ attribution. Regenerate schemas, run schema consistency checks and `task check`,
 and build the fictional example reports. Visually inspect representative email
 and exported slides with multiple authors and a continued section.
 
-## Review and next step
+## Implementation record
 
-The behavior above implements the approved conversational requirements. Identity
-edge cases, mixed-layout handling, schema versioning, and presentation details
-are explicit design decisions for review. After written-spec approval, prepare
-the implementation plan under the brainstorming workflow.
+Implemented under `docs/superpowers/plans/2026-09-24-per-person-weekly-updates.md`.
+That plan records tests, review findings, and visual verification. The source
+parser validates file depth relative to the actual effort status directory so
+nested directories named `status` cannot bypass layout checks.
