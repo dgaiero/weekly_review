@@ -1,24 +1,25 @@
 {
   "week": "2026-W39",
-  "schema_version": 1,
+  "schema_version": 2,
   "efforts": [
     {
       "effort": {
         "schema_version": 1,
         "id": "project-alpha",
-        "name": "Project Alpha (fictional example)",
+        "name": "Project Alpha",
         "status": "active",
         "lead": {
           "name": "Jane Smith",
-          "gitlab": "jsmith"
+          "ntid": "jsmith"
         },
         "customer": {
           "organization": "Example Customer",
           "poc": {
-            "name": "John Doe",
-            "gitlab": null
+            "name": "Rob Bob",
+            "ntid": "rbob"
           }
         },
+        "currency": "USD",
         "funding": [
           {
             "source": "IRAD",
@@ -32,31 +33,77 @@
         "team": [
           {
             "name": "Jane Smith",
-            "gitlab": "jsmith",
+            "ntid": "jsmith",
             "commitment": 0.4
           },
           {
-            "name": "Alex Jones",
-            "gitlab": "ajones",
+            "name": "John Doe",
+            "ntid": "jdoe",
             "commitment": 0.25
           }
         ],
         "tags": [
           "example"
         ],
+        "links": [
+          {
+            "name": "GitLab repository",
+            "url": "https://gitlab.example.com/team/project-alpha",
+            "description": "Source code and issues"
+          },
+          {
+            "name": "SharePoint",
+            "url": "https://example.sharepoint.com/sites/project-alpha",
+            "description": null
+          }
+        ],
         "funding_total": 350000
       },
-      "update": {
-        "week": "2026-W39",
-        "sections": {
-          "Progress Overview": "Completed integration testing and prepared a customer demonstration.",
-          "Accomplishments": "- Completed System A integration.\n- Closed three test findings.",
-          "Risks / Blockers / Mitigations": "- Hardware delivery delayed two weeks. Mitigation: reordered integration activities.",
-          "Next Week": "- Conduct the customer demonstration.",
-          "Help / Decisions Needed": "None."
+      "updates": [
+        {
+          "week": "2026-W39",
+          "author": null,
+          "sections": {
+            "Progress Overview": "Completed integration testing and prepared a customer demonstration.",
+            "Accomplishments": "- Completed System A integration.\n- Closed three test findings.",
+            "Risks / Blockers / Mitigations": "- Hardware delivery delayed two weeks. Mitigation: reordered integration activities.",
+            "Next Week": "- Conduct the customer demonstration.",
+            "Help / Decisions Needed": "None."
+          }
+        },
+        {
+          "week": "2026-W39",
+          "author": {
+            "name": "Alex Jones",
+            "ntid": "example-ajones"
+          },
+          "sections": {
+            "Progress Overview": "Prepared the test environment for this fictional example effort.",
+            "Accomplishments": "- Checked the demonstration dataset.\n- Recorded the test environment configuration.",
+            "Risks / Blockers / Mitigations": "None.",
+            "Next Week": "- Run the demonstration rehearsal.",
+            "Help / Decisions Needed": "None."
+          }
+        },
+        {
+          "week": "2026-W39",
+          "author": {
+            "name": "Jane Smith",
+            "ntid": "example-jsmith"
+          },
+          "sections": {
+            "Progress Overview": "Prepared the demonstration agenda for this fictional example effort.",
+            "Accomplishments": "- Drafted the demonstration sequence.\n- Collected the team's demonstration notes.",
+            "Risks / Blockers / Mitigations": "None.",
+            "Next Week": "- Walk through the demonstration agenda.",
+            "Help / Decisions Needed": "None."
+          }
         }
-      }
+      ]
     }
   ],
-  "warnings": []
+  "warnings": [
+    "project-alpha: missing weekly update for 2026-W39: John Doe (NTID: jdoe)",
+    "project-alpha: missing weekly update for 2026-W39: Jane Smith (NTID: jsmith)"
+  ]
 }

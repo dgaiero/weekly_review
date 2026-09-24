@@ -1,14 +1,16 @@
+# yaml-language-server: $schema=../../../schema/effort.schema.json
 schema_version: 1
 id: project-alpha
-name: Project Alpha (fictional example)
+name: Project Alpha
 status: active
 lead:
   name: Jane Smith
-  gitlab: jsmith
+  ntid: jsmith
 customer:
   organization: Example Customer
   poc:
-    name: John Doe
+    name: Rob Bob
+    ntid: rbob
 funding:
   - source: IRAD
     amount: 350000
@@ -17,9 +19,15 @@ dates:
   end: 2026-12-31
 team:
   - name: Jane Smith
-    gitlab: jsmith
+    ntid: jsmith
     commitment: 0.4
-  - name: Alex Jones
-    gitlab: ajones
+  - name: John Doe
+    ntid: jdoe
     commitment: 0.25
 tags: [example]
+links:
+  - name: GitLab repository
+    url: https://gitlab.example.com/team/project-alpha
+    description: Source code and issues
+  - name: SharePoint
+    url: https://example.sharepoint.com/sites/project-alpha

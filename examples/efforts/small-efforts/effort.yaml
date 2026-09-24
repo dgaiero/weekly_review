@@ -1,0 +1,15 @@
+# yaml-language-server: $schema=../../../schema/effort.schema.json
+schema_version: 1
+id: small-efforts
+name: Small Efforts
+status: active
+reporting: optional
+lead:
+  name: Jane Smith
+  ntid: jsmith
+dates:
+  start: null
+  end: null
+team: []
+funding: []
+tags: [example]
