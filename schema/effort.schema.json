@@ -59,6 +59,41 @@
       "title": "DateRange",
       "type": "object"
     },
+    "EffortLink": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "url": {
+          "format": "uri",
+          "maxLength": 2083,
+          "minLength": 1,
+          "title": "Url",
+          "type": "string"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        }
+      },
+      "required": [
+        "name",
+        "url"
+      ],
+      "title": "EffortLink",
+      "type": "object"
+    },
     "EffortStatus": {
       "enum": [
         "proposed",
@@ -99,7 +134,7 @@
           "title": "Name",
           "type": "string"
         },
-        "gitlab": {
+        "ntid": {
           "anyOf": [
             {
               "minLength": 1,
@@ -110,7 +145,7 @@
             }
           ],
           "default": null,
-          "title": "Gitlab"
+          "title": "Ntid"
         }
       },
       "required": [
@@ -127,7 +162,7 @@
           "title": "Name",
           "type": "string"
         },
-        "gitlab": {
+        "ntid": {
           "anyOf": [
             {
               "minLength": 1,
@@ -138,7 +173,7 @@
             }
           ],
           "default": null,
-          "title": "Gitlab"
+          "title": "Ntid"
         },
         "commitment": {
           "maximum": 1,
@@ -175,6 +210,15 @@
     "status": {
       "$ref": "#/$defs/EffortStatus"
     },
+    "reporting": {
+      "default": "required",
+      "enum": [
+        "required",
+        "optional"
+      ],
+      "title": "Reporting",
+      "type": "string"
+    },
     "lead": {
       "$ref": "#/$defs/Person"
     },
@@ -188,6 +232,12 @@
         }
       ],
       "default": null
+    },
+    "currency": {
+      "default": "USD",
+      "pattern": "^[A-Z]{3}$",
+      "title": "Currency",
+      "type": "string"
     },
     "funding": {
       "items": {
@@ -212,6 +262,13 @@
         "type": "string"
       },
       "title": "Tags",
+      "type": "array"
+    },
+    "links": {
+      "items": {
+        "$ref": "#/$defs/EffortLink"
+      },
+      "title": "Links",
       "type": "array"
     }
   },

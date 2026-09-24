@@ -80,6 +80,15 @@
         "status": {
           "$ref": "#/$defs/EffortStatus"
         },
+        "reporting": {
+          "default": "required",
+          "enum": [
+            "required",
+            "optional"
+          ],
+          "title": "Reporting",
+          "type": "string"
+        },
         "lead": {
           "$ref": "#/$defs/Person"
         },
@@ -93,6 +102,12 @@
             }
           ],
           "default": null
+        },
+        "currency": {
+          "default": "USD",
+          "pattern": "^[A-Z]{3}$",
+          "title": "Currency",
+          "type": "string"
         },
         "funding": {
           "items": {
@@ -119,6 +134,13 @@
           "title": "Tags",
           "type": "array"
         },
+        "links": {
+          "items": {
+            "$ref": "#/$defs/EffortLink"
+          },
+          "title": "Links",
+          "type": "array"
+        },
         "funding_total": {
           "readOnly": true,
           "title": "Funding Total",
@@ -135,6 +157,41 @@
         "funding_total"
       ],
       "title": "Effort",
+      "type": "object"
+    },
+    "EffortLink": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "url": {
+          "format": "uri",
+          "maxLength": 2083,
+          "minLength": 1,
+          "title": "Url",
+          "type": "string"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        }
+      },
+      "required": [
+        "name",
+        "url"
+      ],
+      "title": "EffortLink",
       "type": "object"
     },
     "EffortStatus": {
@@ -177,7 +234,7 @@
           "title": "Name",
           "type": "string"
         },
-        "gitlab": {
+        "ntid": {
           "anyOf": [
             {
               "minLength": 1,
@@ -188,7 +245,7 @@
             }
           ],
           "default": null,
-          "title": "Gitlab"
+          "title": "Ntid"
         }
       },
       "required": [
@@ -203,20 +260,16 @@
         "effort": {
           "$ref": "#/$defs/Effort"
         },
-        "update": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/WeeklyStatus"
-            },
-            {
-              "type": "null"
-            }
-          ]
+        "updates": {
+          "items": {
+            "$ref": "#/$defs/WeeklyStatus"
+          },
+          "title": "Updates",
+          "type": "array"
         }
       },
       "required": [
-        "effort",
-        "update"
+        "effort"
       ],
       "title": "ReportEffort",
       "type": "object"
@@ -229,7 +282,7 @@
           "title": "Name",
           "type": "string"
         },
-        "gitlab": {
+        "ntid": {
           "anyOf": [
             {
               "minLength": 1,
@@ -240,7 +293,7 @@
             }
           ],
           "default": null,
-          "title": "Gitlab"
+          "title": "Ntid"
         },
         "commitment": {
           "maximum": 1,
@@ -262,6 +315,17 @@
         "week": {
           "title": "Week",
           "type": "string"
+        },
+        "author": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Person"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "sections": {
           "additionalProperties": {
@@ -286,8 +350,8 @@
       "type": "string"
     },
     "schema_version": {
-      "const": 1,
-      "default": 1,
+      "const": 2,
+      "default": 2,
       "title": "Schema Version",
       "type": "integer"
     },

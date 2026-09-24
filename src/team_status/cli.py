@@ -7,7 +7,7 @@ import sys
 from datetime import UTC, datetime
 from pathlib import Path
 
-from .models import Effort, WeeklyReport, WeekMetadata, validate_week
+from .models import Effort, LegacyStatusMetadata, SubmissionMetadata, WeeklyReport, validate_week
 from .reports.email import email_html, email_markdown
 from .reports.slides import slides_markdown
 from .reports.summary import build_report
@@ -36,7 +36,8 @@ def main() -> int:
             destination.mkdir(parents=True, exist_ok=True)
             for name, model, mode in (
                 ("effort", Effort, "validation"),
-                ("weekly-status", WeekMetadata, "validation"),
+                ("weekly-status", SubmissionMetadata, "validation"),
+                ("legacy-weekly-status", LegacyStatusMetadata, "validation"),
                 ("weekly-report", WeeklyReport, "serialization"),
             ):
                 (destination / f"{name}.schema.json").write_text(

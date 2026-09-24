@@ -5,7 +5,15 @@ from datetime import date
 from enum import StrEnum
 from typing import Annotated, Literal, Self
 
-from pydantic import BaseModel, ConfigDict, Field, computed_field, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    HttpUrl,
+    computed_field,
+    field_validator,
+    model_validator,
+)
 
 Text = Annotated[str, Field(min_length=1)]
 
@@ -34,7 +42,11 @@ class EffortStatus(StrEnum):
 
 class Person(Model):
     name: Text
-    gitlab: Text | None = None
+    ntid: Text | None = None
+
+    @property
+    def identity(self) -> tuple[str, str]:
+        return ("ntid", self.ntid.casefold()) if self.ntid else ("name", self.name.casefold())
 
 
 class TeamMember(Person):
@@ -62,17 +74,36 @@ class DateRange(Model):
         return self
 
 
+class EffortLink(Model):
+    name: Text
+    url: HttpUrl
+    description: str | None = None
+
+
 class Effort(Model):
     schema_version: Literal[1]
     id: Annotated[str, Field(pattern=r"^[a-z0-9]+(?:-[a-z0-9]+)*$")]
     name: Text
     status: EffortStatus
+    reporting: Literal["required", "optional"] = "required"
     lead: Person
     customer: Customer | None = None
+    currency: Annotated[str, Field(pattern=r"^[A-Z]{3}$")] = "USD"
     funding: list[Funding] = Field(default_factory=list)
     dates: DateRange
     team: list[TeamMember] = Field(default_factory=list)
     tags: list[Text] = Field(default_factory=list)
+    links: list[EffortLink] = Field(default_factory=list)
+
+    @field_validator("team")
+    @classmethod
+    def unique_team(cls, team: list[TeamMember]) -> list[TeamMember]:
+        seen = set()
+        for member in team:
+            if member.identity in seen:
+                raise ValueError(f"duplicate team identity: {member.name}")
+            seen.add(member.identity)
+        return team
 
     @computed_field
     @property
@@ -89,16 +120,24 @@ class WeekMetadata(Model):
         return validate_week(value)
 
 
-class WeeklyStatus(WeekMetadata):
+class SubmissionMetadata(WeekMetadata):
+    author: Person
+
+
+class LegacyStatusMetadata(WeekMetadata):
+    author: Person | None = None
+
+
+class WeeklyStatus(LegacyStatusMetadata):
     sections: dict[str, str]
 
 
 class ReportEffort(Model):
     effort: Effort
-    update: WeeklyStatus | None
+    updates: list[WeeklyStatus] = Field(default_factory=list)
 
 
 class WeeklyReport(WeekMetadata):
-    schema_version: Literal[1] = 1
+    schema_version: Literal[2] = 2
     efforts: list[ReportEffort]
     warnings: list[str]

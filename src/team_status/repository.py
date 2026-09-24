@@ -13,7 +13,7 @@ from .yaml_io import load_yaml
 @dataclass
 class Repository:
     efforts: list[Effort] = field(default_factory=list)
-    updates: dict[tuple[str, str], WeeklyStatus] = field(default_factory=dict)
+    updates: dict[tuple[str, str], list[WeeklyStatus]] = field(default_factory=dict)
     errors: list[str] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
 
@@ -26,7 +26,7 @@ def load_repository(root: Path, week: str) -> Repository:
         repo.errors.append(f"{folder}: efforts directory does not exist")
         return repo
     seen = set()
-    allocations: dict[str, float] = {}
+    allocations: dict[tuple[str, str], float] = {}
     for directory in sorted(folder.iterdir()):
         if directory.name.startswith(".") or not directory.is_dir():
             continue
@@ -42,19 +42,34 @@ def load_repository(root: Path, week: str) -> Repository:
         except (OSError, ValueError, yaml.YAMLError) as exc:
             repo.errors.append(f"{path}: {exc}")
             continue
-        for status_path in sorted((directory / "status").glob("*.md")):
+        sources: dict[tuple[str, tuple[str, str]], Path] = {}
+        for status_path in sorted((directory / "status").rglob("*.md")):
             try:
-                update = parse_status(status_path)
-                repo.updates[(effort.id, update.week)] = update
+                update = parse_status(status_path, status_root=directory / "status")
+                if update.author:
+                    key = (update.week, update.author.identity)
+                    if key in sources:
+                        raise ValueError(
+                            f"duplicate author submission; first submitted in {sources[key]}"
+                        )
+                    sources[key] = status_path
+                repo.updates.setdefault((effort.id, update.week), []).append(update)
             except (OSError, ValueError, yaml.YAMLError) as exc:
                 repo.errors.append(f"{status_path}: {exc}")
         if effort.status == EffortStatus.ACTIVE:
-            if (effort.id, week) not in repo.updates:
+            updates = repo.updates.get((effort.id, week), [])
+            submitted = {update.author.identity for update in updates if update.author}
+            if effort.reporting == "required" and not effort.team and not updates:
                 repo.warnings.append(f"{effort.id}: missing weekly update for {week}")
-            for person in effort.team:
-                key = f"@{person.gitlab.casefold()}" if person.gitlab else person.name.casefold()
-                allocations[key] = allocations.get(key, 0) + person.commitment
+            for person in sorted(effort.team, key=lambda person: person.identity):
+                if effort.reporting == "required" and person.identity not in submitted:
+                    label = f"{person.name} (NTID: {person.ntid})" if person.ntid else person.name
+                    repo.warnings.append(f"{effort.id}: missing weekly update for {week}: {label}")
+                allocations[person.identity] = (
+                    allocations.get(person.identity, 0) + person.commitment
+                )
     for person, allocation in sorted(allocations.items()):
         if allocation > 1 + 1e-9:
-            repo.warnings.append(f"{person}: allocated at {allocation:.0%} across active efforts")
+            label = f"NTID: {person[1]}" if person[0] == "ntid" else person[1]
+            repo.warnings.append(f"{label}: allocated at {allocation:.0%} across active efforts")
     return repo

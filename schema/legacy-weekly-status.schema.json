@@ -36,13 +36,20 @@
       "type": "string"
     },
     "author": {
-      "$ref": "#/$defs/Person"
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Person"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
     }
   },
   "required": [
-    "week",
-    "author"
+    "week"
   ],
-  "title": "SubmissionMetadata",
+  "title": "LegacyStatusMetadata",
   "type": "object"
 }

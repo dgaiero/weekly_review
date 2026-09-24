@@ -2,7 +2,7 @@
 
 from jinja2 import Environment, PackageLoader, StrictUndefined, select_autoescape
 
-from .markdown import literal
+from .markdown import author_label, literal
 
 _environment = Environment(
     loader=PackageLoader("team_status.reports", "templates"),
@@ -11,6 +11,7 @@ _environment = Environment(
     keep_trailing_newline=True,
 )
 _environment.filters["literal"] = literal
+_environment.filters["author_label"] = author_label
 
 
 def render(template: str, **context: object) -> str:

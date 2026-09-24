@@ -11,10 +11,12 @@
 ## {{ item.effort.name | literal }}
 
 Lead: {{ item.effort.lead.name | literal }}  
-Status: {{ item.effort.status.value | replace('_', ' ') }}{% if item.update is none %}
+Status: {{ item.effort.status.value | replace('_', ' ') }}{% if not item.updates %}
 
-{% include 'missing-update.md.j2' %}{% else %}{% for section in sections %}
+{% include 'missing-update.md.j2' %}{% else %}{% for update in item.updates %}
 
-### {{ section }}
+### {{ update.author | author_label | literal }}{% for section in sections %}
 
-{{ item.update.sections[section] or 'Not provided.' }}{% endfor %}{% endif %}{% endfor %}
+#### {{ section }}
+
+{{ update.sections[section] or 'Not provided.' }}{% endfor %}{% endfor %}{% endif %}{% endfor %}

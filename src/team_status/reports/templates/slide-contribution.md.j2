@@ -1,0 +1,11 @@
+<!-- _class: contribution -->
+
+## {{ title }}{% if continued %} (continued){% endif %}
+
+{{ author }}
+{% for section in sections %}
+
+### {{ section.heading }}
+
+{{ section.content }}
+{% endfor %}

@@ -1,10 +1,11 @@
 """Parse front matter and preserve Markdown within the five weekly sections."""
 
+import re
 from pathlib import Path
 
 from markdown_it import MarkdownIt
 
-from .models import WeeklyStatus, WeekMetadata
+from .models import LegacyStatusMetadata, SubmissionMetadata, WeeklyStatus
 from .yaml_io import load_yaml
 
 SECTIONS = (
@@ -16,7 +17,22 @@ SECTIONS = (
 )
 
 
-def parse_status(path: Path) -> WeeklyStatus:
+def parse_status(path: Path, *, status_root: Path | None = None) -> WeeklyStatus:
+    if status_root is None:
+        status_root = path.parent if path.parent.name == "status" else path.parent.parent
+    parts = path.relative_to(status_root).parts
+    if status_root.name != "status" or len(parts) not in (1, 2):
+        raise ValueError("status path must be status/<week>.md or status/<week>/<contributor>.md")
+    if len(parts) == 1:
+        metadata_model = LegacyStatusMetadata
+        path_week = path.stem
+        location = "filename"
+    else:
+        metadata_model = SubmissionMetadata
+        path_week = path.parent.name
+        location = "week directory"
+        if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", path.stem):
+            raise ValueError("contributor filename must be a lowercase slug")
     lines = path.read_text(encoding="utf-8").splitlines()
     if not lines or lines[0] != "---":
         raise ValueError("expected YAML front matter starting with ---")
@@ -24,9 +40,9 @@ def parse_status(path: Path) -> WeeklyStatus:
         end = lines.index("---", 1)
     except ValueError as exc:
         raise ValueError("unclosed YAML front matter") from exc
-    metadata = WeekMetadata.model_validate(load_yaml("\n".join(lines[1:end])))
-    if path.stem != metadata.week:
-        raise ValueError("status filename must match front matter week")
+    metadata = metadata_model.model_validate(load_yaml("\n".join(lines[1:end])))
+    if path_week != metadata.week:
+        raise ValueError(f"status {location} must match front matter week")
     body = lines[end + 1 :]
     tokens = MarkdownIt().parse("\n".join(body))
     headings = []
@@ -46,4 +62,4 @@ def parse_status(path: Path) -> WeeklyStatus:
         raise ValueError(f"missing required sections: {', '.join(sorted(missing))}")
     if headings and any(line.strip() for line in body[: headings[0][1][0]]):
         raise ValueError("weekly content must be inside the required sections")
-    return WeeklyStatus(week=metadata.week, sections=sections)
+    return WeeklyStatus(week=metadata.week, author=metadata.author, sections=sections)

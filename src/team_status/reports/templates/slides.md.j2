@@ -13,6 +13,15 @@ style: |
   h3 { color: #526b80; font-size: 23px; }
   li { margin-bottom: 0.25em; }
   pre { font-size: 18px; }
+  section.contribution {
+    font-size: 20px; line-height: 1.15; padding: 32px 64px;
+    justify-content: flex-start;
+  }
+  section.contribution h2 { font-size: 30px; margin: 0 0 8px; }
+  section.contribution h3 { font-size: 20px; margin: 10px 0 4px; }
+  section.contribution p, section.contribution ul,
+  section.contribution ol, section.contribution pre { margin: 0 0 4px; }
+  section.contribution li { margin-bottom: 0; }
 ---
 
 {{ slides | join("\n\n---\n\n") }}

@@ -1,14 +1,35 @@
+# yaml-language-server: $schema=../schema/effort.schema.json
 schema_version: 1
-id: new-effort
+id: new-effort # choose a unique identifier for this effort
 name: New Effort
-status: proposed
+status: proposed # options: proposed, active, completed, on-hold
+reporting: required # Use optional for occasional updates, such as shared small efforts.
 lead:
   name: Replace with effort lead
-  gitlab: null
+  ntid: null
 customer: null
+# Customer information for this effort
+#  organization: Example Customer
+#  poc:
+#    name: Rob Bob
+#    ntid: rbob
+currency: USD
 funding: []
+# Funding sources for this effort
+#  - source: IRAD
+#    amount: 350000
 dates:
   start: null
   end: null
 team: []
+# List of team members involved in this effort
+#  - name: Team Member Name
+#    ntid: team_member_ntid
+#    commitment: 0.25 (in FTE)
 tags: []
+# List of tags associated with this effort (e.g., project, team, priority)
+links: []
+# links:
+#   - name: GitLab repository
+#     url: https://gitlab.example.com/team/new-effort
+#     description (optional): Source code and issues

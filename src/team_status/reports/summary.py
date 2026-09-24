@@ -10,7 +10,13 @@ def build_report(repository: Repository, week: str) -> WeeklyReport:
     return WeeklyReport(
         week=week,
         efforts=[
-            ReportEffort(effort=effort, update=repository.updates.get((effort.id, week)))
+            ReportEffort(
+                effort=effort,
+                updates=sorted(
+                    repository.updates.get((effort.id, week), []),
+                    key=lambda update: update.author.identity if update.author else ("", ""),
+                ),
+            )
             for effort in repository.efforts
         ],
         warnings=repository.warnings,
