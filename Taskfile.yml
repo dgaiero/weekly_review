@@ -36,9 +36,12 @@ tasks:
       - task: test
       - task: validate
   demo:
-    desc: Build the fictional example week outside the live portfolio
+    desc: Build the fictional example week and export PowerPoint outside the live portfolio
     cmds:
-      - uv run --locked team-status build-week --root examples --week 2026-W39 --output build/demo
+      - uv run --locked team-status build-week --root examples --week 2026-W39 --output examples/build/demo
+      - task: pptx
+        vars:
+          CLI_ARGS: examples/build/demo/2026-W39/slides.md
   slides:setup:
     desc: Install pinned Marp tools (requires Node 22+ and pnpm)
     cmds: [pnpm install --frozen-lockfile]

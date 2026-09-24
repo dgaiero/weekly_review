@@ -13,11 +13,14 @@ Install [uv](https://docs.astral.sh/uv/getting-started/installation/) and
 ```sh
 task setup
 task check
+task slides:setup
 task demo
 ```
 
-The demo writes report artifacts to `build/demo/2026-W39/` from fictional data under
-`examples/`. The live `efforts/` directory starts empty.
+The demo writes report artifacts, including PowerPoint, to
+`examples/build/demo/2026-W39/` from fictional data under `examples/`.
+It requires Node.js 22+, pnpm 11.19.0, and Chrome, Edge, or Firefox for the
+PowerPoint export. The live `efforts/` directory starts empty.
 
 Task is optional: `uv sync --locked`, `uv run pytest`, and
 `uv run team-status --help` provide the underlying commands. Python 3.12 is
@@ -74,10 +77,11 @@ To export PowerPoint, install Node.js 22+, pnpm 11.19.0, and Chrome, Edge, or Fi
 ```sh
 task slides:setup
 task demo
-task pptx -- build/demo/2026-W39/slides.md
-task slides:html -- build/demo/2026-W39/slides.md
+task slides:html -- examples/build/demo/2026-W39/slides.md
 ```
 
+The demo calls `task pptx` after building its reports. To export another deck,
+run `task pptx -- path/to/slides.md`.
 Marp writes `slides.pptx` and `slides.html` beside the Markdown. The HTML slide
 preview does not require a browser installation. PPTX export does. For a browser
 in a nonstandard location, add `--browser-path '/path/to/browser'` to the export

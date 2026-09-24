@@ -408,6 +408,7 @@ $RECYCLE.BIN/
 .uv-cache/
 .pnpm-store/
 build/
+!examples/build
 dist/
 .browsers/
 .env
