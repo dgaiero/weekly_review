@@ -3,7 +3,8 @@ stages: [check, report, render]
 default:
   image: ghcr.io/astral-sh/uv:python3.12-bookworm-slim
   before_script:
-    - uv sync --locked
+    - UV_TOOL_BIN_DIR=/usr/local/bin uv tool install go-task-bin==3.51.1
+    - task setup
   cache:
     key:
       files: [uv.lock]
@@ -25,12 +26,7 @@ workflow:
 check:
   stage: check
   script:
-    - uv run --locked ruff check .
-    - uv run --locked ruff format --check .
-    - uv run --locked pytest
-    - uv run --locked team-status validate
-    - uv run --locked team-status schema
-    - git diff --exit-code -- schema/
+    - task ci:check
 
 weekly-report:
   stage: report
@@ -38,7 +34,7 @@ weekly-report:
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
     - if: '$CI_PIPELINE_SOURCE == "web" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
   script:
-    - uv run --locked team-status build-week
+    - task build
   artifacts:
     name: 'weekly-status-$CI_COMMIT_SHORT_SHA'
     paths: [build/]
@@ -49,7 +45,8 @@ weekly-powerpoint:
   image:
     name: ghcr.io/marp-team/marp-cli:v4.5.1
     entrypoint: [""]
-  before_script: []
+  before_script:
+    - npm install --global @go-task/cli@3.51.1
   cache: []
   needs:
     - job: weekly-report
@@ -58,11 +55,7 @@ weekly-powerpoint:
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
     - if: '$CI_PIPELINE_SOURCE == "web" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
   script:
-    - mkdir -p /home/marp/app/reports
-    - cp -R build/. /home/marp/app/reports/
-    - chown -R marp:marp /home/marp/app/reports
-    - docker-entrypoint --pptx /home/marp/app/reports/*/slides.md
-    - cp -R /home/marp/app/reports/. build/
+    - task slides:pptx:ci
   artifacts:
     name: 'weekly-reports-$CI_COMMIT_SHORT_SHA'
     paths: [build/]

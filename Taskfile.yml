@@ -35,25 +35,48 @@ tasks:
       - task: lint
       - task: test
       - task: validate
+  ci:check:
+    desc: Run all checks and verify generated schemas are committed
+    cmds:
+      - task: check
+      - task: schema
+      - git diff --exit-code -- schema/
   demo:
     desc: Build the fictional example week and export PowerPoint outside the live portfolio
     cmds:
       - uv run --locked team-status build-week --root examples --week 2026-W39 --output examples/build/demo
-      - task: pptx
+      - task: slides:pptx
+        vars:
+          CLI_ARGS: examples/build/demo/2026-W39/slides.md
+      - task: slides:pdf
         vars:
           CLI_ARGS: examples/build/demo/2026-W39/slides.md
   slides:setup:
     desc: Install pinned Marp tools (requires Node 22+ and pnpm)
     cmds: [pnpm install --frozen-lockfile]
-  pptx:
+  slides:pptx:
     desc: Export slide Markdown to PowerPoint (task pptx -- build/2026-W39/slides.md)
     preconditions:
       - sh: 'test -n {{.CLI_ARGS | shellQuote}}'
         msg: Pass a slides.md path after --
     cmds: ['pnpm exec marp --pptx {{.CLI_ARGS}}']
+  slides:pptx:ci:
+    desc: Export built reports inside the official Marp container
+    cmds:
+      - mkdir -p /home/marp/app/reports
+      - cp -R build/. /home/marp/app/reports/
+      - chown -R marp:marp /home/marp/app/reports
+      - docker-entrypoint --pptx /home/marp/app/reports/*/slides.md
+      - cp -R /home/marp/app/reports/. build/
   slides:html:
     desc: Preview slides as HTML (task slides:html -- build/2026-W39/slides.md)
     preconditions:
       - sh: 'test -n {{.CLI_ARGS | shellQuote}}'
         msg: Pass a slides.md path after --
     cmds: ['pnpm exec marp {{.CLI_ARGS}}']
+  slides:pdf:
+    desc: Export slide Markdown to PDF (task slides:pdf -- build/2026-W39/slides.md)
+    preconditions:
+      - sh: 'test -n {{.CLI_ARGS | shellQuote}}'
+        msg: Pass a slides.md path after --
+    cmds: ['pnpm exec marp --pdf {{.CLI_ARGS}}']
