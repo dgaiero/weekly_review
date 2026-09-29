@@ -24,9 +24,7 @@ def effort(amount=1000, **metadata):
 @pytest.mark.parametrize("currencies", [({}, "USD"), ({"currency": "EUR"}, "EUR")])
 def test_currency_survives_json_and_labels_all_reports(currencies):
     metadata, code = currencies
-    report = WeeklyReport(
-        week="2026-09-21", warnings=[], efforts=[ReportEffort(effort=effort(**metadata))]
-    )
+    report = WeeklyReport(week="2026-09-21", warnings=[], efforts=[ReportEffort(effort=effort(**metadata))])
     assert json.loads(report.model_dump_json())["efforts"][0]["effort"]["currency"] == code
     for output in (email_markdown(report), slides_markdown(report)):
         assert f"Total funding: 1,000 {code}" in output

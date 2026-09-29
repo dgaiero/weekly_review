@@ -7,21 +7,60 @@ tasks:
   default:
     cmds: [task --list]
     # Dev Environment
+
+  audit:
+    desc: Run security audit and dependency checks
+    cmds:
+      - uv audit --preview-features audit-command
+      - uv run deptry src
+
+  lint:
+    desc: Run linting checks
+    aliases:
+      - check
+    cmds:
+      - uv run ruff check --fix {{.CLI_ARGS}}
+
+  format:
+    desc: Run code formatter
+    cmds:
+      - uv run ruff format {{.CLI_ARGS}}
+
+  type:
+    desc: Run type checking
+    cmds:
+      - uv run ty check {{.CLI_ARGS}}
+
+  build:
+    desc: Build the project
+    cmds:
+      - uv build {{.CLI_ARGS}}
+
+  test:
+    desc: Run tests with coverage
+    cmds:
+      - uv run pytest {{.CLI_ARGS}}
+    aliases:
+      - test:all
+
+  test:report:
+    desc: Run tests with coverage
+    cmds:
+      - uv run pytest --html=./test_out/report.html --cov-report html {{.CLI_ARGS}}
+
+  all_checks:
+    desc: Run all checks (audit, lint, format, type)
+    cmds:
+      - task: audit
+      - task: lint
+      - task: format
+      - task: type
+
+
   setup:
     desc: Install the locked Python environment
     cmds: [uv sync --locked]
-  test:
-    desc: Run the test suite
-    cmds: [uv run --locked pytest]
   # Code Quality
-  lint:
-    desc: Check Python style and formatting
-    cmds:
-      - uv run --locked ruff check .
-      - uv run --locked ruff format --check .
-  format:
-    desc: Format Python sources
-    cmds: [uv run --locked ruff format .]
   # Tool Use
   demo:
     desc: Build the fictional example week and export PowerPoint outside the live portfolio
@@ -39,7 +78,7 @@ tasks:
   validate:
     desc: Validate the portfolio (optional -- --week YYYY-MM-DD)
     cmds: ['uv run --locked team-status validate {{.CLI_ARGS}}']
-  build:
+  build-week:
     desc: Build JSON, slide Markdown, email Markdown and HTML (optional -- --week YYYY-MM-DD)
     cmds: ['uv run --locked team-status build-week {{.CLI_ARGS}}']
   schema:

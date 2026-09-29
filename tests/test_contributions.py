@@ -20,9 +20,7 @@ def portfolio(root, team=None, status="active", effort_id="alpha", reporting=Non
         "status": status,
         "lead": {"name": "Lead"},
         "dates": {},
-        "team": [
-            dict(person, commitment=0.6) for person in ([JANE, ALEX] if team is None else team)
-        ],
+        "team": [dict(person, commitment=0.6) for person in ([JANE, ALEX] if team is None else team)],
     }
     if reporting is not None:
         metadata["reporting"] = reporting
@@ -78,7 +76,8 @@ def test_names_match_without_ntid_and_identifier_namespaces_do_not_collide(tmp_p
     submission(effort, f"{WEEK}/jane.md", {"name": "JANE"})
     repo = load_repository(tmp_path, WEEK)
     assert repo.errors == []
-    assert len(repo.warnings) == 1 and "Other" in repo.warnings[0]
+    assert len(repo.warnings) == 1
+    assert "Other" in repo.warnings[0]
 
 
 @pytest.mark.parametrize(
@@ -114,9 +113,7 @@ def test_duplicate_authors_report_both_paths_even_in_history(tmp_path):
     a = submission(effort, f"{WEEK}/first.md", JANE)
     b = submission(effort, f"{WEEK}/second.md", {"name": "Changed", "ntid": "JANE"})
     repo = load_repository(tmp_path, "2026-09-28")
-    assert any(
-        "duplicate" in error and str(a) in error and str(b) in error for error in repo.errors
-    )
+    assert any("duplicate" in error and str(a) in error and str(b) in error for error in repo.errors)
     with pytest.raises(ValueError):
         build_report(repo, "2026-09-28")
 
@@ -166,7 +163,8 @@ def test_staffing_uses_ntid_once_per_member_not_per_submission(tmp_path):
     repo = load_repository(tmp_path, WEEK)
     assert repo.errors == []
     assert len(repo.warnings) == 1
-    assert "120%" in repo.warnings[0] and "jane" in repo.warnings[0]
+    assert "120%" in repo.warnings[0]
+    assert "jane" in repo.warnings[0]
 
 
 @pytest.mark.parametrize("team", [[], [JANE]])

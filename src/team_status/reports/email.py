@@ -13,20 +13,14 @@ from .templating import render
 
 
 def email_markdown(report: WeeklyReport) -> str:
-    return render(
-        "email.md.j2", report=report, sections=SECTIONS, overview=overview_context(report)
-    )
+    return render("email.md.j2", report=report, sections=SECTIONS, overview=overview_context(report))
 
 
 def email_html(markdown: str) -> str:
     """Render a simple email body with inline styles and raw HTML disabled."""
     parser = MarkdownIt("commonmark", {"html": False})
     tokens = parser.parse(markdown)
-    styles = json.loads(
-        files("team_status.reports")
-        .joinpath("templates/email-styles.json")
-        .read_text(encoding="utf-8")
-    )
+    styles = json.loads(files("team_status.reports").joinpath("templates/email-styles.json").read_text(encoding="utf-8"))
 
     def style_tokens(items):
         for token in items:

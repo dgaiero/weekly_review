@@ -1,0 +1,98 @@
+target-version = "py312"
+line-length = 130
+indent-width = 4
+
+exclude = ["ruff.toml"]
+
+[lint]
+preview = true
+select = [
+    "D",
+    "E",
+    "F",
+    "I",
+    "N",
+    "W",
+    "UP",
+    "B",
+    "SIM",
+    "C4",
+    "PERF",
+    "NPY",
+    "C90",
+    "ANN",
+    "YTT",
+    "S",
+    "BLE",
+    "FBT",
+    "A",
+    "COM",
+    "CPY",
+    "DTZ",
+    "ISC",
+    "PIE",
+    "PYI",
+    "PT",
+    "Q",
+    "RSE",
+    "RET",
+    "TID",
+    "ARG",
+    "PTH",
+    "PD",
+    "DOC",
+    "RUF",
+]
+
+ignore = [
+    "COM812", # missing-trailing-comma
+    "FBT001", # boolean-type-hint-positional-argument
+    "FBT002", # boolean-default-value-positional-argument
+    "FBT003", # boolean-positional-value-in-call
+    "S603",   # subprocess-without-shell-equals-true
+    "C901",   # function is too complex #TODO: Remove this to enforce complexity limits
+    "CPY001", # missing-copyright-notice (no existing copyright convention)
+    "S404",   # suspicious-subprocess-import (ffmpeg/ffprobe calls are intentional)
+]
+
+[lint.per-file-ignores]
+# Also ignore `E402` in all `__init__.py` files.
+"tests/**.py" = [
+    "INP001",  # File is part of an implicit namespace package
+    "D100",    # Missing docstring in public module
+    "D101",    # Missing docstring in public class
+    "D102",    # Missing docstring in public method
+    "D103",    # Missing docstring in public function
+    "D104",    # Missing docstring in public package
+    "PLR2004", # Magic value used in comparison
+    "S101",    # Use of assert detected
+    "ANN001",  # Missing type annotation for function argument
+    "ANN002",  # Missing type annotation for *args
+    "ANN003",  # Missing type annotation for **kwargs
+    "ANN201",  # Missing return type annotation for public function
+    "ANN202",  # Missing return type annotation for private function
+    "ARG001",  # Unused function argument
+    "ARG002",  # Unused method argument
+    "DOC201",  # Docstring missing Returns (test functions don't need it)
+    "DOC501",  # Docstring missing Raises (test functions don't need it)
+]
+
+[lint.flake8-quotes]
+docstring-quotes = "double"
+
+[lint.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[lint.isort]
+known-first-party = ["weekly_review"]
+
+[lint.pydocstyle]
+convention = "google"
+
+[format]
+preview = true
+exclude = ["tests/fixtures/*.py"]
+docstring-code-format = true
+docstring-code-line-length = 130
+indent-style = "space"
+quote-style = "double"

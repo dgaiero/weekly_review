@@ -14,15 +14,39 @@ dependencies = ["pydantic>=2.11,<3", "PyYAML>=6.0.2,<7", "markdown-it-py>=3,<5",
 team-status = "team_status.cli:main"
 
 [dependency-groups]
-dev = ["pytest>=8,<10", "ruff>=0.11,<1"]
-
-[tool.ruff]
-target-version = "py312"
-line-length = 100
-extend-exclude = ["node_modules", ".pnpm-store", ".uv-cache", ".browsers"]
-
-[tool.ruff.lint]
-select = ["E", "F", "I", "UP", "B"]
+dev = [
+    "pytest>=8",
+    "ruff>=0.11",
+    "pyright>=1.1",
+    "deptry>=0.25.1",
+    "covdefaults>=2.3.0",
+    "pytest-cov>=7.1.0",
+    "pytest-html>=4.2.0",
+    "ty>=0.0.49",
+    "pytest-xdist>=3.8.0",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = [
+    "unit: Unit tests (no external dependencies)",
+    "integration: Integration tests (CLI, filesystem)",
+]
+addopts = "--cov=weekly_review --cov-report=term-missing -n 4"
+
+[tool.uv]
+package = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/weekly_review"]
+
+[tool.deptry]
+known_first_party = ["weekly_review"]
+
+[tool.coverage.run]
+plugins = ["covdefaults"]
+omit = ["tests/**"]
+
+[tool.coverage.report]
+fail_under = 90
+omit = ["tests/**"]

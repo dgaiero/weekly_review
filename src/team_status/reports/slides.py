@@ -30,9 +30,7 @@ def pages(text: str, context: str, *, line_budget: int = 11) -> list[str]:
     tokens = MarkdownIt().parse(text)
     starts = {0, len(lines)}
     for token in tokens:
-        if token.map and (
-            token.level == 0 or (token.type == "list_item_open" and token.level == 1)
-        ):
+        if token.map and (token.level == 0 or (token.type == "list_item_open" and token.level == 1)):
             starts.add(token.map[0])
     bounds = sorted(starts)
     chunks = ["\n".join(lines[a:b]).strip() for a, b in zip(bounds, bounds[1:], strict=False)]
@@ -41,10 +39,7 @@ def pages(text: str, context: str, *, line_budget: int = 11) -> list[str]:
     for chunk in filter(None, chunks):
         cost = sum(max(1, (len(line) + 69) // 70) for line in chunk.splitlines()) + 1
         if cost > line_budget or len(chunk) > 850:
-            raise ValueError(
-                f"{context}: content block is too long for a slide; "
-                "split it into shorter paragraphs or bullets"
-            )
+            raise ValueError(f"{context}: content block is too long for a slide; split it into shorter paragraphs or bullets")
         if current and (weight + cost > line_budget or len("\n\n".join(current + [chunk])) > 850):
             result.append("\n\n".join(current))
             current, weight = [], 0
@@ -92,28 +87,20 @@ def slides_markdown(report: WeeklyReport) -> str:
                 if len(name) > 95:
                     raise ValueError("slide title is too long; split or shorten the effort name")
                 if len(author) > 100:
-                    raise ValueError(
-                        "slide author label is too long; shorten the author name or NTID"
-                    )
+                    raise ValueError("slide author label is too long; shorten the author name or NTID")
                 groups: list[list[dict[str, str]]] = [[]]
                 weight = 0
                 for section in SECTIONS:
-                    for index, content in enumerate(
-                        pages(update.sections[section], f"{name}: {section}", line_budget=21)
-                    ):
+                    for index, content in enumerate(pages(update.sections[section], f"{name}: {section}", line_budget=21)):
                         # One line for the heading, plus wrapped content and spacing.
-                        cost = 2 + sum(
-                            max(1, (len(line) + 69) // 70) for line in content.splitlines()
-                        )
+                        cost = 2 + sum(max(1, (len(line) + 69) // 70) for line in content.splitlines())
                         if groups[-1] and weight + cost > 22:
                             groups.append([])
                             weight = 0
-                        groups[-1].append(
-                            {
-                                "heading": section + (" (continued)" if index else ""),
-                                "content": content,
-                            }
-                        )
+                        groups[-1].append({
+                            "heading": section + (" (continued)" if index else ""),
+                            "content": content,
+                        })
                         weight += cost
                 for index, sections in enumerate(groups):
                     slides.append(

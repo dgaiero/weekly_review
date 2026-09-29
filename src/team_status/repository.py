@@ -48,9 +48,7 @@ def load_repository(root: Path, week: str) -> Repository:
                 update = parse_status(status_path, status_root=directory / "status")
                 key = (update.week, update.author.identity)
                 if key in sources:
-                    raise ValueError(
-                        f"duplicate author submission; first submitted in {sources[key]}"
-                    )
+                    raise ValueError(f"duplicate author submission; first submitted in {sources[key]}")
                 sources[key] = status_path
                 repo.updates.setdefault((effort.id, update.week), []).append(update)
             except (OSError, ValueError, yaml.YAMLError) as exc:
@@ -64,9 +62,7 @@ def load_repository(root: Path, week: str) -> Repository:
                 if effort.reporting == "required" and person.identity not in submitted:
                     label = f"{person.name} (NTID: {person.ntid})" if person.ntid else person.name
                     repo.warnings.append(f"{effort.id}: missing weekly update for {week}: {label}")
-                allocations[person.identity] = (
-                    allocations.get(person.identity, 0) + person.commitment
-                )
+                allocations[person.identity] = allocations.get(person.identity, 0) + person.commitment
     for person, allocation in sorted(allocations.items()):
         if allocation > 1 + 1e-9:
             label = f"NTID: {person[1]}" if person[0] == "ntid" else person[1]

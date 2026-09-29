@@ -30,9 +30,7 @@ def main() -> int:
                 help="Monday starting the reporting week (default: current UTC week)",
             )
         if name == "build-week":
-            command.add_argument(
-                "--output", type=Path, help="Output directory (default: ROOT/build)"
-            )
+            command.add_argument("--output", type=Path, help="Output directory (default: ROOT/build)")
     args = parser.parse_args()
     try:
         if args.command == "schema":

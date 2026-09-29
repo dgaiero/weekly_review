@@ -36,9 +36,7 @@ def test_email_does_not_interpret_metadata_as_markup_or_execute_html():
 
     report = example_report()
     report.efforts[0].effort.name = "<script>alert(1)</script> **Alpha**"
-    report.efforts[0].updates[0].sections["Progress Overview"] = (
-        "<script>alert(2)</script> [bad](javascript:alert(3))"
-    )
+    report.efforts[0].updates[0].sections["Progress Overview"] = "<script>alert(2)</script> [bad](javascript:alert(3))"
     html = email_html(email_markdown(report))
     assert "<script>" not in html
     assert 'href="javascript:' not in html
@@ -74,9 +72,7 @@ def test_authored_separators_and_comments_cannot_control_slides():
     from team_status.reports.slides import slides_markdown
 
     report = example_report()
-    report.efforts[0].updates[0].sections["Accomplishments"] = (
-        "First\n\n---\n\n<!-- _backgroundColor: red -->\n\nLast"
-    )
+    report.efforts[0].updates[0].sections["Accomplishments"] = "First\n\n---\n\n<!-- _backgroundColor: red -->\n\nLast"
     result = slides_markdown(report)
     assert "<!-- _backgroundColor" not in result
     assert "First\n\n---" not in result
@@ -139,7 +135,8 @@ def test_every_contributor_is_attributed_in_all_reports():
             text = f"{name}'s **{section}**."
             assert text in email
             page = next(page for page in slides.split("\n\n---\n\n") if text in page)
-            assert name in page and ntid in page
+            assert name in page
+            assert ntid in page
     assert email.count("Total funding: 100 USD") == 1
     assert slides.count("Total funding: 100 USD") == 1
 
@@ -153,9 +150,7 @@ def test_short_updates_keep_all_sections_on_one_slide_per_contributor():
     deck = slides_markdown(report).split("\n\n---\n\n")
     for update in report.efforts[0].updates:
         label = literal(author_label(update.author))
-        contribution_slides = [
-            page for page in deck if label in page and "## Project Alpha\n" in page
-        ]
+        contribution_slides = [page for page in deck if label in page and "## Project Alpha\n" in page]
         assert len(contribution_slides) == 1
         for section in SECTIONS:
             assert section in contribution_slides[0]
@@ -171,9 +166,7 @@ def test_continued_slides_repeat_author_and_preserve_all_bullets():
         f"- Finished {i}: " + "some detail " * 6 for i in range(20)
     )
     result = slides_markdown(report)
-    continued = [
-        page for page in result.split("\n\n---\n\n") if "(continued)" in page and "Finished" in page
-    ]
+    continued = [page for page in result.split("\n\n---\n\n") if "(continued)" in page and "Finished" in page]
     assert continued
     assert all("Alex" in page and "alex" in page for page in continued)
     assert all(f"Finished {i}:" in result for i in range(20))
@@ -190,7 +183,8 @@ def test_author_metadata_is_literal_and_oversized_attribution_fails():
     author.name = "**Alex** <script>"
     author.ntid = "<!-- _backgroundColor: red -->"
     html = email_html(email_markdown(report))
-    assert "<strong>Alex</strong>" not in html and "<script>" not in html
+    assert "<strong>Alex</strong>" not in html
+    assert "<script>" not in html
     slides = slides_markdown(report)
     assert "<!-- _backgroundColor" not in slides
     author.name = "Long name " * 30

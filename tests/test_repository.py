@@ -52,9 +52,7 @@ def test_build_normalized_report(repo):
     assert report["week"] == "2026-09-21"
     assert report["efforts"][0]["effort"]["funding_total"] == 300
     assert report["efforts"][0]["effort"]["links"] == []
-    assert report["efforts"][0]["updates"][0]["sections"]["Accomplishments"] == (
-        "Update for Accomplishments."
-    )
+    assert report["efforts"][0]["updates"][0]["sections"]["Accomplishments"] == ("Update for Accomplishments.")
     assert report["warnings"] == []
     folder = repo / "build/2026-09-21"
     assert (folder / "slides.md").read_text().startswith("---\nmarp: true")
@@ -136,9 +134,7 @@ def test_effort_links_survive_yaml_to_report_json(repo):
     result = cli(repo, "build-week", "--week", "2026-09-21")
     assert result.returncode == 0, result.stderr
     report = json.loads((repo / "build/2026-09-21/report.json").read_text())
-    assert report["efforts"][0]["effort"]["links"] == [
-        {"description": None, **link} for link in links
-    ]
+    assert report["efforts"][0]["effort"]["links"] == [{"description": None, **link} for link in links]
 
 
 @pytest.mark.parametrize(
@@ -185,8 +181,7 @@ def test_schema_export(tmp_path):
 def test_empty_sections_allowed(repo):
     path = repo / "efforts/alpha/status/2026-09-21/jane.md"
     path.write_text(
-        "---\nweek: 2026-09-21\nauthor: {name: Jane, ntid: jane}\n---\n"
-        + "\n\n".join(f"## {heading}" for heading in HEADINGS)
+        "---\nweek: 2026-09-21\nauthor: {name: Jane, ntid: jane}\n---\n" + "\n\n".join(f"## {heading}" for heading in HEADINGS)
     )
     assert cli(repo, "validate", "--week", "2026-09-21").returncode == 0
 
@@ -208,9 +203,7 @@ def test_cli_builds_two_attributed_files(repo):
     directory = repo / "efforts/alpha/status/2026-09-21"
     directory.mkdir(exist_ok=True)
     for name in ["Jane", "Alex"]:
-        content = STATUS.replace(
-            "author: {name: Jane, ntid: jane}", f"author: {{name: {name}, ntid: {name.lower()}}}"
-        )
+        content = STATUS.replace("author: {name: Jane, ntid: jane}", f"author: {{name: {name}, ntid: {name.lower()}}}")
         (directory / f"{name.lower()}.md").write_text(content)
     result = cli(repo, "build-week", "--week", "2026-09-21")
     assert result.returncode == 0, result.stderr

@@ -23,9 +23,7 @@ def overview_context(report: WeeklyReport) -> dict:
         currency = item.effort.currency
         funding[currency] = funding.get(currency, 0) + item.effort.funding_total
     return {
-        "counts": {
-            status.value.replace("_", " ").title(): counts[status] for status in EffortStatus
-        },
+        "counts": {status.value.replace("_", " ").title(): counts[status] for status in EffortStatus},
         "funding": dict(sorted(funding.items())) if funding else {"USD": 0},
         "staffing": sum(
             member.commitment
