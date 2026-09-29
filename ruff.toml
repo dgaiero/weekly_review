@@ -84,7 +84,7 @@ docstring-quotes = "double"
 ban-relative-imports = "all"
 
 [lint.isort]
-known-first-party = ["weekly_review"]
+known-first-party = ["team_status"]
 
 [lint.pydocstyle]
 convention = "google"

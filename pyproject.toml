@@ -32,16 +32,16 @@ markers = [
     "unit: Unit tests (no external dependencies)",
     "integration: Integration tests (CLI, filesystem)",
 ]
-addopts = "--cov=weekly_review --cov-report=term-missing -n 4"
+addopts = "--cov=team_status --cov-report=term-missing -n 4"
 
 [tool.uv]
 package = true
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/weekly_review"]
+packages = ["src/team_status"]
 
 [tool.deptry]
-known_first_party = ["weekly_review"]
+known_first_party = ["team_status"]
 
 [tool.coverage.run]
 plugins = ["covdefaults"]
