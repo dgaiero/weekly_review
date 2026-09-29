@@ -3,7 +3,7 @@
 Track team efforts in GitLab using YAML metadata and a Markdown update per person per week.
 Includes validation, a normalized JSON report, Markdown slide and email generators,
 HTML email, Marp PowerPoint export, JSON schemas, tests, Taskfile commands,
-GitLab CI, and OpenCode guidance. Email delivery and the browser UI are future work.
+GitLab CI, and OpenCode guidance. SMTP email delivery is supported; the browser UI is future work.
 
 ## Quick start
 
@@ -124,7 +124,7 @@ need Python or a local clone. Your team chooses whether updates require an MR.
 
 ```sh
 task validate -- --week 2026-09-21
-task build -- --week 2026-09-21
+task build-week -- --week 2026-09-21
 ```
 
 Reports are written to `build/2026-09-21/`. Each missing active-effort team member's
@@ -188,7 +188,8 @@ especially after adding tables, images, long code blocks, or custom styling.
 
 Email HTML uses a simple table wrapper and inline styles. Raw HTML in authored
 Markdown is escaped. Preview `email.html`, then use it as the body in your sending
-system. Outlook/Gmail-specific rendering and sending are not tested or configured.
+system. The CI SMTP job sends this generated HTML with `email.md` as the
+plain-text alternative. Outlook/Gmail-specific rendering is not tested.
 Generated files are overwritten by the next build; persist lasting changes in
 effort files or the [Jinja report templates](src/team_status/reports/templates/).
 Edit `email.md.j2` for email structure, `email.html.j2` for its HTML wrapper,
@@ -199,7 +200,7 @@ and `email-styles.json` for inline element styles. Slide layout and theme live i
 
 ```sh
 task test       # behavioral tests
-task lint       # lint and formatting check
+task lint       # lint check (use -- --fix to apply fixes)
 task format     # apply formatting
 task schema     # regenerate JSON schemas after model changes
 task check      # all local checks
@@ -217,9 +218,13 @@ are validated by the parser. `task check` verifies schema consistency via tests.
 
 ## GitLab CI
 
-Pushes and merge requests run lint, tests, schema consistency, and validation.
-Scheduled and manually launched pipelines on the default branch also publish a
-Markdown, JSON, and HTML email artifacts, followed by a PowerPoint render job.
+Pushes and merge requests run separate audit, lint, format, type, package build,
+test, and validation/schema jobs. CI formatting checks do not rewrite files.
+Scheduled and manually launched pipelines on the default branch also generate
+weekly reports, render PowerPoint, PDF, and HTML slides, and deploy GitLab Pages.
+Pages opens the latest generated slide deck at `index.html`; the same site also
+contains `email.html`, `slides.pdf`, `slides.pptx`, and the Markdown/JSON sources.
+Each deployment replaces the previous site; it is not a weekly archive.
 Set `REPORT_WEEK=2026-09-21` to select a week; otherwise the
 Monday of the current UTC week is used. Create your Friday schedule in GitLab and choose
 its timezone. Artifacts expire after 90 days; retain finalized reports separately
@@ -228,13 +233,42 @@ if you need a permanent archive.
 The CI environment follows the [uv GitLab integration guidance](https://docs.astral.sh/uv/guides/integration/gitlab/)
 and installs the checked-in dependency lockfile. Both runner images bootstrap
 Task 3.51.1 using the [documented package installers](https://taskfile.dev/docs/installation).
-All workflow commands then run through Taskfile: `task setup`, `task ci:check`,
-`task build`, and `task slides:pptx:ci`. The CI check adds schema regeneration
-and a Git diff check to `task check`; the PowerPoint task handles the official
-Marp container's staging directory and file ownership. GitLab runner
-execution is verified separately after pushing to a configured project.
+Workflow commands run through Taskfile. `task build` builds wheel/sdist packages;
+`task build-week` generates the weekly report. `weekly-slides` calls
+`task slides:html`, `task slides:ppt` (an alias for `slides:pptx`), and
+`task slides:pdf` directly in the checkout. The tasks default to `pnpm exec marp`;
+CI sets `MARP_CMD=docker-entrypoint` to use the container's installed Marp and
+runs it as the job user, without a separate rendering directory. The Pages job
+requires exactly one rendered week under `build/` and copies it to `public/`
+directly in `.gitlab-ci.yml`.
 
-No automatic email sending or snapshot tags are configured. Renderers consume
+| Job | GitLab report or downloadable artifact |
+| --- | --- |
+| `test` | JUnit test results, Cobertura coverage annotations, coverage percentage, HTML test and coverage reports |
+| `lint`, `format`, `type` | GitLab Code Quality JSON, including merge request findings |
+| `audit` | Raw uv vulnerability audit JSON; findings fail the job |
+| `dependency-scanning` | Native dependency scanning report and CycloneDX SBOMs for dependency/license displays |
+| `build` | Wheel and source distribution under `dist/` |
+| `weekly-report`, `weekly-slides` | Authored weekly reports and rendered slides |
+| `pages` | Published site under `public/` |
+
+Diagnostic artifacts upload even when their checks fail. `task test:report`
+generates the test artifacts locally under `test_out/`. Coverage must still meet
+the threshold in `pyproject.toml`; reporting does not suppress check failures.
+The uv audit JSON is a downloadable artifact, not a GitLab security report.
+
+Native dependency and license reporting uses GitLab's
+[Dependency-Scanning.v2 template](https://docs.gitlab.com/user/application_security/dependency_scanning/dependency_scanning_sbom/)
+with the committed Python and pnpm lockfiles. This configuration targets GitLab
+19.x with Ultimate for the security/license UI. Self-managed instances must
+synchronize package metadata. GitLab's template owns the scanner and report
+schemas; its default advisory job failure policy is retained, while `audit`
+remains a required check. See
+[CycloneDX license scanning](https://docs.gitlab.com/user/compliance/license_scanning_of_cyclonedx_files/).
+GitLab runner execution, native report ingestion, and Pages deployment must be
+verified after pushing to a configured project; local checks cannot verify them.
+
+No snapshot tags are configured. Renderers consume
 `WeeklyReport`, keeping authored data and presentation separate. See
 [the renderer boundary](src/team_status/reports/README.md).
 
@@ -244,3 +278,34 @@ continue at paragraph or bullet boundaries, repeating the effort, author, and
 section heading. Effort metadata remains separate. No authored text is summarized.
 The `slide-contribution.md.j2` template and `contribution` theme class control
 this layout; its pagination budget is separate from portfolio and metadata slides.
+
+## Automatic SMTP email
+
+`weekly-email` automatically sends the generated report on scheduled and manually
+launched default-branch pipelines, after `weekly-report` succeeds. It consumes
+that job's artifacts directly and does not wait for slide rendering or Pages.
+Push and merge request pipelines do not send email. Missing configuration fails
+the job instead of silently skipping delivery.
+
+Configure these GitLab CI/CD variables (do not commit credentials):
+
+| Variable | Value |
+| --- | --- |
+| `SMTP_HOST` | Required SMTP hostname |
+| `SMTP_PORT` | Defaults to 587 for STARTTLS, 465 for implicit TLS |
+| `SMTP_SECURITY` | `starttls` (default) or `ssl`; certificates are verified |
+| `SMTP_USERNAME`, `SMTP_PASSWORD` | Both set for authentication, or both omitted for a relay |
+| `EMAIL_FROM` | Required single bare mailbox address |
+| `EMAIL_TO` | Required comma-separated bare mailbox addresses |
+
+Store credentials as masked, protected variables and protect the default branch.
+The runner must be able to reach the SMTP service. The subject includes the week
+from the artifact directory; the HTML and Markdown bodies are sent unchanged.
+`task email:send` runs the same delivery locally using environment variables and
+exactly one report under `build/`; it sends a real message.
+
+The job has no automatic retries. Retrying the job or starting another reporting
+pipeline sends again. A transport failure or partial recipient rejection can
+happen after some recipients have received the message; inspect delivery before
+retrying. Success means the SMTP server accepted the message, not confirmation
+of inbox delivery. Tests use mocked SMTP connections.

@@ -406,6 +406,10 @@ $RECYCLE.BIN/
 
 # End of https://www.toptal.com/developers/gitignore/api/python,visualstudiocode,node,macos,windows,linux
 .uv-cache/
+/test_out/
+/public/
+/gl-*.json
+/audit.json
 .pnpm-store/
 build/
 !examples/build

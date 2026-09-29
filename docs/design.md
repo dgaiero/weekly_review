@@ -10,8 +10,8 @@ The repository implements metadata and weekly parsing, validation, JSON schema
 export, and a normalized weekly report. Report generators produce separate Marp
 slide Markdown and email Markdown. Marp exports image-based PowerPoint, and
 markdown-it-py renders email HTML with raw HTML disabled and inline styles.
-A future static browser editor, email delivery, and snapshot tag automation
-are separate increments.
+SMTP delivery consumes the generated email artifacts in a separate CI job.
+A future static browser editor and snapshot tag automation are separate increments.
 
 ## Validation and reporting
 
@@ -82,9 +82,16 @@ comments are neutralized so only the generator controls slide boundaries.
 
 CI checks pushes and merge requests. Scheduled reports run on the default branch,
 accept REPORT_WEEK, and publish JSON, Markdown, HTML, and PPTX artifacts.
+The render job also exports PDF and HTML slides. A Pages job publishes the
+rendered weekly directory, using the slide HTML as `index.html`, on scheduled
+and manual default-branch pipelines. Each deployment replaces the previous site.
+Quality jobs publish JUnit, Cobertura, and Code Quality reports. GitLab's native
+dependency scanning template supplies security and CycloneDX license reports.
 Default week is Monday of the current UTC week, in YYYY-MM-DD format.
-ISO week numbers are not supported. Configure the Friday schedule and timezone in GitLab. No credentials,
-external communications, automatic Git writes, or model calls are needed.
+ISO week numbers are not supported. Configure the Friday schedule and timezone in GitLab. The automatic SMTP job uses CI-provided connection settings and credentials to
+send the generated HTML and Markdown email on scheduled/manual default-branch
+pipelines. Delivery never reads effort source files or regenerates content.
+No automatic Git writes or model calls are needed.
 
 Contribution slides group all five sections for one person within an effort, using
 compact headings and spacing. Short updates fit on one slide; longer updates

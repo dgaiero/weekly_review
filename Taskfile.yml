@@ -3,6 +3,9 @@ version: '3'
 env:
   UV_CACHE_DIR: '{{.ROOT_DIR}}/.uv-cache'
 
+vars:
+  MARP: '{{.MARP_CMD | default "pnpm exec marp"}}'
+
 tasks:
   default:
     cmds: [task --list]
@@ -11,15 +14,13 @@ tasks:
   audit:
     desc: Run security audit and dependency checks
     cmds:
-      - uv audit --preview-features audit-command
+      - uv audit --locked --preview-features audit-command {{.CLI_ARGS}}
       - uv run deptry src
 
   lint:
     desc: Run linting checks
-    aliases:
-      - check
     cmds:
-      - uv run ruff check --fix {{.CLI_ARGS}}
+      - uv run ruff check {{.CLI_ARGS}}
 
   format:
     desc: Run code formatter
@@ -46,7 +47,7 @@ tasks:
   test:report:
     desc: Run tests with coverage
     cmds:
-      - uv run pytest --html=./test_out/report.html --cov-report html {{.CLI_ARGS}}
+      - uv run pytest --junitxml=test_out/junit.xml --html=test_out/report.html --self-contained-html --cov-report=term-missing --cov-report=xml:test_out/coverage.xml --cov-report=html:test_out/coverage {{.CLI_ARGS}}
 
   all_checks:
     desc: Run all checks (audit, lint, format, type)
@@ -94,23 +95,27 @@ tasks:
     desc: Install pinned Marp tools (requires Node 22+ and pnpm)
     cmds: [pnpm install --frozen-lockfile]
   slides:pptx:
+    aliases: [slides:ppt]
     desc: Export slide Markdown to PowerPoint (task pptx -- build/2026-09-21/slides.md)
     preconditions:
       - sh: 'test -n {{.CLI_ARGS | shellQuote}}'
         msg: Pass a slides.md path after --
-    cmds: ['pnpm exec marp --pptx {{.CLI_ARGS}}']
+    cmds: ['{{.MARP}} --pptx {{.CLI_ARGS}}']
   slides:html:
     desc: Preview slides as HTML (task slides:html -- build/2026-09-21/slides.md)
     preconditions:
       - sh: 'test -n {{.CLI_ARGS | shellQuote}}'
         msg: Pass a slides.md path after --
-    cmds: ['pnpm exec marp {{.CLI_ARGS}}']
+    cmds: ['{{.MARP}} {{.CLI_ARGS}}']
   slides:pdf:
     desc: Export slide Markdown to PDF (task slides:pdf -- build/2026-09-21/slides.md)
     preconditions:
       - sh: 'test -n {{.CLI_ARGS | shellQuote}}'
         msg: Pass a slides.md path after --
-    cmds: ['pnpm exec marp --pdf {{.CLI_ARGS}}']
+    cmds: ['{{.MARP}} --pdf {{.CLI_ARGS}}']
+  email:send:
+    desc: Send the generated weekly email using SMTP environment variables
+    cmds: [uv run --locked python -m team_status.delivery]
   # CI Commands
   ci:check:
     desc: Run all checks and verify generated schemas are committed
