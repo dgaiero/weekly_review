@@ -14,7 +14,7 @@ def build_report(repository: Repository, week: str) -> WeeklyReport:
                 effort=effort,
                 updates=sorted(
                     repository.updates.get((effort.id, week), []),
-                    key=lambda update: update.author.identity if update.author else ("", ""),
+                    key=lambda update: update.author.identity,
                 ),
             )
             for effort in repository.efforts

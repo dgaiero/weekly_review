@@ -6,9 +6,7 @@ from collections import Counter
 from ..models import EffortStatus, Person, WeeklyReport
 
 
-def author_label(author: Person | None) -> str:
-    if author is None:
-        return "Legacy update — author not recorded"
+def author_label(author: Person) -> str:
     return f"{author.name} (NTID: {author.ntid})" if author.ntid else author.name
 
 

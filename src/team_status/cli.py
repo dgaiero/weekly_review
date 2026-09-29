@@ -4,10 +4,10 @@ import argparse
 import json
 import os
 import sys
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
-from .models import Effort, LegacyStatusMetadata, SubmissionMetadata, WeeklyReport, validate_week
+from .models import Effort, SubmissionMetadata, WeeklyReport, validate_week
 from .reports.email import email_html, email_markdown
 from .reports.slides import slides_markdown
 from .reports.summary import build_report
@@ -15,6 +15,8 @@ from .repository import load_repository
 
 
 def main() -> int:
+    today = datetime.now(UTC).date()
+    current_week = (today - timedelta(days=today.weekday())).isoformat()
     parser = argparse.ArgumentParser(description="Validate efforts and compile weekly status")
     commands = parser.add_subparsers(dest="command", required=True)
     for name in ("validate", "build-week", "schema"):
@@ -23,7 +25,9 @@ def main() -> int:
         if name != "schema":
             command.add_argument(
                 "--week",
-                default=os.environ.get("REPORT_WEEK") or datetime.now(UTC).strftime("%G-W%V"),
+                default=os.environ.get("REPORT_WEEK") or current_week,
+                metavar="YYYY-MM-DD",
+                help="Monday starting the reporting week (default: current UTC week)",
             )
         if name == "build-week":
             command.add_argument(
@@ -37,7 +41,6 @@ def main() -> int:
             for name, model, mode in (
                 ("effort", Effort, "validation"),
                 ("weekly-status", SubmissionMetadata, "validation"),
-                ("legacy-weekly-status", LegacyStatusMetadata, "validation"),
                 ("weekly-report", WeeklyReport, "serialization"),
             ):
                 (destination / f"{name}.schema.json").write_text(

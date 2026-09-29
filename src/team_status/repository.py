@@ -46,19 +46,18 @@ def load_repository(root: Path, week: str) -> Repository:
         for status_path in sorted((directory / "status").rglob("*.md")):
             try:
                 update = parse_status(status_path, status_root=directory / "status")
-                if update.author:
-                    key = (update.week, update.author.identity)
-                    if key in sources:
-                        raise ValueError(
-                            f"duplicate author submission; first submitted in {sources[key]}"
-                        )
-                    sources[key] = status_path
+                key = (update.week, update.author.identity)
+                if key in sources:
+                    raise ValueError(
+                        f"duplicate author submission; first submitted in {sources[key]}"
+                    )
+                sources[key] = status_path
                 repo.updates.setdefault((effort.id, update.week), []).append(update)
             except (OSError, ValueError, yaml.YAMLError) as exc:
                 repo.errors.append(f"{status_path}: {exc}")
         if effort.status == EffortStatus.ACTIVE:
             updates = repo.updates.get((effort.id, week), [])
-            submitted = {update.author.identity for update in updates if update.author}
+            submitted = {update.author.identity for update in updates}
             if effort.reporting == "required" and not effort.team and not updates:
                 repo.warnings.append(f"{effort.id}: missing weekly update for {week}")
             for person in sorted(effort.team, key=lambda person: person.identity):

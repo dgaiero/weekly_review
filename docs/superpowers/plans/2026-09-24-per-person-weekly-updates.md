@@ -4,7 +4,7 @@
 
 **Goal:** Collect attributed weekly files from every active-effort team member using NTID identity.
 
-**Architecture:** Pydantic owns person and report contracts. The parser validates both source layouts; the repository collects contributions and warnings; renderers consume the normalized report only.
+**Architecture:** Pydantic owns person and report contracts. The parser validates the per-person source layout; the repository collects contributions and warnings; renderers consume the normalized report only.
 
 **Tech Stack:** Python 3.12, uv, Pydantic, pytest, Jinja, MarkdownIt, Taskfile, Marp.
 
@@ -13,7 +13,7 @@
 ## Global Constraints
 
 - Missing submissions and staffing above 100% are warnings; malformed data is an error.
-- Preserve authored Markdown and historical unattributed files.
+- Preserve authored Markdown in valid attributed submissions.
 - Use `ntid` throughout Person metadata; never infer real NTIDs from GitLab usernames.
 - Report version 2 replaces `update` with `updates`; effort YAML stays version 1.
 - Keep fictional source content under examples and leave the real portfolio untouched.
@@ -22,7 +22,7 @@
 
 - A missing NTID must not match a roster member with an NTID by name (task 1).
 - Historical and deeply misplaced Markdown must not evade validation (task 1).
-- Duplicate authors must identify both source files, including mixed layouts (task 1).
+- Duplicate authors must identify both source files (task 1).
 - Author metadata must not inject Markdown or slide directives (task 2).
 - Every continued slide must retain attribution with room for its label (task 2).
 
@@ -32,20 +32,16 @@ Files: `src/team_status/{models,status,repository}.py`, `src/team_status/reports
 
 Interfaces: `parse_status(path: Path) -> WeeklyStatus`; `load_repository(root: Path, week: str) -> Repository`; `build_report(repository: Repository, week: str) -> WeeklyReport`. Repository values become lists; report entries expose `updates`.
 
-- [x] Add tests writing real temporary effort/status files with two authors, asserting normalized report content and completeness warnings. Cover the identity, duplicate, malformed path, legacy, inactive, empty-team, and staffing cases in the spec.
+- [x] Add tests writing real temporary effort/status files with two authors, asserting normalized report content and completeness warnings. Cover the identity, duplicate, malformed path, missing author, inactive, empty-team, and staffing cases in the spec.
 - [x] Run `uv run pytest tests/test_contributions.py -q` and verify expected failures.
-- [x] Rename the Person identifier, centralize identity, validate duplicate roster entries, and add separate legacy/new metadata models. Parse nested paths with required author and root legacy paths with optional author.
+- [x] Rename the Person identifier, centralize identity, validate duplicate roster entries, and require author metadata for every update. Parse per-person paths and reject unsupported layouts.
 
 ```python
 class SubmissionMetadata(WeekMetadata):
     author: Person
 
 
-class LegacyStatusMetadata(WeekMetadata):
-    author: Person | None = None
-
-
-class WeeklyStatus(LegacyStatusMetadata):
+class WeeklyStatus(SubmissionMetadata):
     sections: dict[str, str]
 ```
 
@@ -60,7 +56,7 @@ Interfaces: consume `ReportEffort.updates: list[WeeklyStatus]`; keep public rend
 
 - [x] Update integration tests for `updates` and NTID. Add tests covering every author/section in email and slides, escaped attribution, continued slides, excessive author length, and schema export parity.
 - [x] Run `uv run pytest tests/test_reports.py tests/test_repository.py -q`; verify failures from the old renderer/schema contracts.
-- [x] Render each contribution in order and display name plus optional NTID, or the legacy attribution label. Reserve slide content lines for attribution and repeat it on each page. Keep totals computed once per effort.
+- [x] Render each contribution in order and display name plus optional NTID. Reserve slide content lines for attribution and repeat it on each page. Keep totals computed once per effort.
 
 ```python
 for update in item.updates:
@@ -68,25 +64,20 @@ for update in item.updates:
         add(name, update.sections[section], section, author_label(update.author))
 ```
 
-- [x] Export required-author and legacy optional-author input schemas plus report version 2; run `task schema`.
+- [x] Export the required-author input schema plus report version 2; run `task schema`.
 - [x] Run the full pytest suite and verify generated schemas match checked-in files.
 
 ### Task 3: Documentation, examples, and final verification
 
 Files: README, `docs/design.md`, renderer README, contributor templates, fictional examples, this plan/spec.
 
-- [x] Document submission paths, responsibilities, identity matching, legacy behavior, and input/report migration.
-- [x] Add two fictional attributed example files and retain the legacy example to demonstrate coexistence; use explicit fictional NTIDs.
+- [x] Document submission paths, responsibilities, identity matching, and input/report contracts.
+- [x] Add two fictional attributed example files ; use explicit fictional NTIDs.
 - [x] Run `task check`, `git diff --check`, and build example artifacts. Export slides and inspect representative email and multi-author/continued slides.
 - [x] Review the complete change against the spec, resolve important findings, and record verification here.
 
-## Execution record
+## Maintenance note
 
-- User requested implementation after reviewing the NTID spec. Execute locally without another approval handoff; preserve the existing spec edit. Baseline: 27 tests passed in the preceding turn.
-- Task 1 produces the collection consumed by task 2; both use `updates`, optional legacy author, and report version 2. No interface conflict.
-
-- Task 1 complete: initial contribution suite failed against the old NTID/collection contract, then all contribution cases passed. Path validation now uses the actual status root; two nested-directory regressions passed after reproducing their failures.
-- Task 2 complete: old renderers/schema export failed the new integration tests; attributed email, slide continuation, schema export/parity, and CLI builds now pass. Escaped ampersands after reproducing the reviewer’s literal-author regression.
-- Task 3 complete: templates, migration documentation, fictional NTID roster and two contributions added; original legacy Markdown retained. `task schema` regenerated all schemas. `task check`: 62 tests passed, lint/format and portfolio validation passed. `git diff --check` passed.
-- `task demo` passed outside the sandbox (restricted pnpm registry-signature verification failed first). JSON, Markdown, HTML email, and PowerPoint example artifacts regenerated. Visually inspected email in Safari and extracted PowerPoint images for both authors and a temporary continued contribution.
-- Independent review found no additional important issues; its ampersand-attribution finding was fixed and tested. Implementation remains uncommitted in the existing workspace as requested work for review; no merge or push performed.
+The source format now uses Monday dates and requires attributed per-person
+updates throughout the input and report contracts. The plan above reflects that
+current format. See `docs/design.md` for the repository contract.

@@ -4,7 +4,7 @@ from team_status.reports.summary import build_report
 from team_status.repository import load_repository
 
 
-def example_report(week="2026-W39"):
+def example_report(week="2026-09-21"):
     return build_report(load_repository(Path("examples"), week), week)
 
 
@@ -13,19 +13,19 @@ def test_email_preserves_updates_and_renders_markdown():
 
     report = example_report()
     markdown = email_markdown(report)
-    assert "Completed System A integration." in markdown
-    assert "Hardware delivery delayed two weeks." in markdown
+    assert "Checked the demonstration dataset." in markdown
+    assert "Collected the team's demonstration notes." in markdown
     html = email_html(markdown)
     assert "<li" in html
     assert "style=" in html
-    assert "2026-W39" in html
+    assert "Week of September 21, 2026" in html
 
 
 def test_email_distinguishes_missing_and_empty_updates():
     from team_status.reports.email import email_markdown
 
-    report = example_report("2026-W40")
-    assert "No update submitted for 2026-W40" in email_markdown(report)
+    report = example_report("2026-09-28")
+    assert "No update submitted for Week of September 28, 2026" in email_markdown(report)
     report = example_report()
     report.efforts[0].updates[0].sections["Accomplishments"] = ""
     assert "Not provided." in email_markdown(report)
@@ -53,7 +53,7 @@ def test_slides_include_metadata_and_all_sections():
     assert result.startswith("---\nmarp: true\n")
     assert "Jane Smith" in result
     assert "350,000" in result
-    assert "Completed System A integration." in result
+    assert "Checked the demonstration dataset." in result
     assert "Help / Decisions Needed" in result
 
 
@@ -107,14 +107,14 @@ def attributed_report():
         funding=[{"source": "Test", "amount": 100}],
     )
     return WeeklyReport(
-        week="2026-W39",
+        week="2026-09-21",
         warnings=[],
         efforts=[
             ReportEffort(
                 effort=effort,
                 updates=[
                     WeeklyStatus(
-                        week="2026-W39",
+                        week="2026-09-21",
                         author={"name": name, "ntid": ntid},
                         sections={section: f"{name}'s **{section}**." for section in SECTIONS},
                     )
@@ -153,7 +153,9 @@ def test_short_updates_keep_all_sections_on_one_slide_per_contributor():
     deck = slides_markdown(report).split("\n\n---\n\n")
     for update in report.efforts[0].updates:
         label = literal(author_label(update.author))
-        contribution_slides = [page for page in deck if label in page]
+        contribution_slides = [
+            page for page in deck if label in page and "## Project Alpha\n" in page
+        ]
         assert len(contribution_slides) == 1
         for section in SECTIONS:
             assert section in contribution_slides[0]
@@ -196,14 +198,20 @@ def test_author_metadata_is_literal_and_oversized_attribution_fails():
         slides_markdown(report)
 
 
-def test_legacy_attribution_is_explicit():
-    from team_status.reports.email import email_markdown
-    from team_status.reports.slides import slides_markdown
+def test_report_updates_require_an_author():
+    import pytest
 
-    report = attributed_report()
-    report.efforts[0].updates[0].author = None
-    for text in [email_markdown(report), slides_markdown(report)]:
-        assert "Legacy update — author not recorded" in text
+    from team_status.models import WeeklyReport
+
+    data = attributed_report().model_dump(exclude_computed_fields=True)
+    update = data["efforts"][0]["updates"][0]
+    for value in [None, {}]:
+        update["author"] = value
+        with pytest.raises(ValueError, match="author"):
+            WeeklyReport.model_validate(data)
+    del update["author"]
+    with pytest.raises(ValueError, match="author"):
+        WeeklyReport.model_validate(data)
 
 
 def test_author_entities_are_displayed_literally():
@@ -217,3 +225,9 @@ def test_author_entities_are_displayed_literally():
     for html in [email_html(email_markdown(report)), MarkdownIt().render(slides_markdown(report))]:
         assert "Alex &amp;copy;" in html
         assert "Alex ©" not in html
+
+
+def test_slide_title_uses_readable_week():
+    from team_status.reports.slides import slides_markdown
+
+    assert "## Week of September 21, 2026" in slides_markdown(example_report())

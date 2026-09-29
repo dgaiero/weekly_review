@@ -18,7 +18,7 @@ task demo
 ```
 
 The demo writes report artifacts, including PowerPoint, to
-`examples/build/demo/2026-W39/` from fictional data under `examples/`.
+`examples/build/demo/2026-09-21/` from fictional data under `examples/`.
 It requires Node.js 22+, pnpm 11.19.0, and Chrome, Edge, or Firefox for the
 PowerPoint export. The live `efforts/` directory starts empty.
 
@@ -74,7 +74,7 @@ reporting: optional
 ```
 
 Each contributor uses the normal five-section weekly template at
-`efforts/small-efforts/status/YYYY-Www/<contributor>.md`. Name each small item
+`efforts/small-efforts/status/YYYY-MM-DD/<contributor>.md`. Name each small item
 in the bullets and reuse that name when following up in another week. Multiple
 items share one submission per person per week. See the fictional
 [small-efforts example](examples/efforts/small-efforts/effort.yaml).
@@ -96,13 +96,13 @@ are tracked in authored weekly text, without a separate task-status register.
 Every person listed in an active effort's `team` submits their own weekly file
 unless the effort sets `reporting: optional`.
 Copy `templates/weekly-status.md` to
-`efforts/<effort-id>/status/2026-W39/<contributor>.md`. Use a lowercase slug for
+`efforts/<effort-id>/status/2026-09-21/<contributor>.md`. Use a lowercase slug for
 the filename, preferably based on your NTID or name. Set `week` to match the
 directory and copy your `author` metadata from the effort's team roster:
 
 ```yaml
 ---
-week: 2026-W39
+week: 2026-09-21
 author:
   name: Your Name
   ntid: your-ntid
@@ -115,17 +115,19 @@ but omit it only when your roster entry also omits it: a name-only submission
 does not match a roster member with an NTID. Fill in the five sections; empty
 sections or `None.` are valid. The lead submits only if listed on the team,
 although voluntary contributions from others are accepted.
-Use ISO weeks, whose year can differ from the calendar year near New Year's Day.
+Use the Monday starting the reporting week, in YYYY-MM-DD format.
+Other weekdays and ISO week numbers are rejected. Quoted and unquoted YAML dates
+are accepted. Reports display a heading such as “Week of September 21, 2026”.
 
 These files can be created directly in GitLab's web editor. Contributors do not
 need Python or a local clone. Your team chooses whether updates require an MR.
 
 ```sh
-task validate -- --week 2026-W39
-task build -- --week 2026-W39
+task validate -- --week 2026-09-21
+task build -- --week 2026-09-21
 ```
 
-Reports are written to `build/2026-W39/`. Each missing active-effort team member's
+Reports are written to `build/2026-09-21/`. Each missing active-effort team member's
 required submission and active staff allocation above 100% warn without failing CI.
 An active effort with required reporting, an empty team, and no update receives
 an effort-level warning.
@@ -134,24 +136,14 @@ dates, weeks, duplicate YAML keys, and missing/duplicate sections fail validatio
 All historical Markdown files are checked; older updates never fill a missing week.
 For reproducible historical reports, check out the original source commit first.
 
-Legacy `status/2026-W39.md` updates remain readable, with optional author metadata.
-Unattributed legacy text appears as "Legacy update — author not recorded" and
-does not fulfill an individual's submission requirement. Legacy and per-person
-files may coexist; reports include both. Duplicate author identities for the
-same effort/week are errors across either layout, including historical weeks.
-Expected contributors come from the team roster in the checked-out Git revision.
+Each update requires an author and the per-person directory layout above.
+Duplicate author identities for the same effort/week are errors, including
+historical weeks. Expected contributors come from the team roster in the
+checked-out Git revision.
 
-### Migrating existing metadata and report consumers
-
-Person metadata now uses `ntid` instead of `gitlab` for leads, team members,
-customer contacts, and authors. Replace old fields with the correct NTID, or omit
-the optional identifier. GitLab usernames are not automatically treated as NTIDs;
-the old `gitlab` field is rejected. Effort YAML keeps `schema_version: 1`.
-
-JSON reports now use `schema_version: 2`. Each effort has an `updates` list instead
-of `update`; an empty list means no submission. Each update contains `week`,
-`author` (null for unattributed legacy content), and `sections`. Contributions
-are ordered by normalized identity, with unattributed legacy content first.
+JSON reports use `schema_version: 2`. Each effort has an `updates` list;
+an empty list means no submission. Each update contains `week`, a required
+`author`, and `sections`. Contributions are ordered by normalized identity.
 
 ## PowerPoint and email
 
@@ -175,7 +167,7 @@ To export PowerPoint, install Node.js 22+, pnpm 11.19.0, and Chrome, Edge, or Fi
 ```sh
 task slides:setup
 task demo
-task slides:html -- examples/build/demo/2026-W39/slides.md
+task slides:html -- examples/build/demo/2026-09-21/slides.md
 ```
 
 The demo calls `task pptx` after building its reports. To export another deck,
@@ -220,8 +212,7 @@ provider credentials or automated model calls in this project. See the
 
 The architecture and validation rules are in [docs/design.md](docs/design.md).
 Pydantic models are the canonical contract. `schema/weekly-status.schema.json`
-describes required-author front matter only; `schema/legacy-weekly-status.schema.json`
-describes optional-author legacy front matter. Markdown headings and source paths
+describes required-author front matter. Markdown headings and source paths
 are validated by the parser. `task check` verifies schema consistency via tests.
 
 ## GitLab CI
@@ -229,8 +220,8 @@ are validated by the parser. `task check` verifies schema consistency via tests.
 Pushes and merge requests run lint, tests, schema consistency, and validation.
 Scheduled and manually launched pipelines on the default branch also publish a
 Markdown, JSON, and HTML email artifacts, followed by a PowerPoint render job.
-Set `REPORT_WEEK=2026-W39` to select a week; otherwise the
-current UTC ISO week is used. Create your Friday schedule in GitLab and choose
+Set `REPORT_WEEK=2026-09-21` to select a week; otherwise the
+Monday of the current UTC week is used. Create your Friday schedule in GitLab and choose
 its timezone. Artifacts expire after 90 days; retain finalized reports separately
 if you need a permanent archive.
 

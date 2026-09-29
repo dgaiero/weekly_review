@@ -10,14 +10,13 @@ Marp CLI is pinned separately in package.json and pnpm-lock.yaml; `task pptx`
 exports a reviewed Markdown file. Each report entry contains complete effort
 metadata, a derived funding total, and an `updates` list for the exact requested
 week (empty when missing). JSON uses schema version 2. Each contribution contains
-nullable `author` metadata, using `name` and optional `ntid`, plus its five sections.
+required `author` metadata, using `name` and optional `ntid`, plus its five sections.
 Surface missing updates explicitly; never summarize them as no progress.
 
 Email groups contributions under effort and author headings. Slides show effort
 metadata once and repeat the author on every contribution slide, including
 continuations. The summary builder orders contributions by normalized identity,
-with unattributed legacy text first; renderers preserve that order. Legacy text
-is labeled "Legacy update — author not recorded". Totals remain per effort.
+and renderers preserve that order. Every update requires an author. Totals remain per effort.
 
 Standard PowerPoint export contains slide images. The Markdown remains editable.
 Pagination uses conservative character and line budgets and rejects oversized

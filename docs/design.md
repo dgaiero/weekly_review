@@ -1,8 +1,7 @@
 # Repository contract
 
 Git is the source of truth. Each effort has a `efforts/<id>/effort.yaml`
-config file and per-person `status/YYYY-Www/<contributor>.md` report files.
-Legacy `status/YYYY-Www.md` files remain supported.
+config file and per-person `status/YYYY-MM-DD/<contributor>.md` report files.
 Pydantic is the canonical schema; exported JSON
 schemas support future editors. People can edit templates in GitLab without
 installing the CLI. Python 3.12+, uv, Taskfile, and OpenCode support development.
@@ -34,10 +33,9 @@ are separate increments.
   case-folded name. Identifier and name identities use separate namespaces.
   Duplicate team identities are errors. The shared Person contract uses `ntid`
   for leads, team members, customer contacts, and authors; `gitlab` is rejected.
-- Weekly Markdown begins with YAML front matter containing a valid ISO week.
-  New files require `author: {name: ..., ntid: ...}` (`ntid` optional), a lowercase
-  slug filename, and a week matching their parent directory. Legacy files have
-  optional authors and a week matching the filename. Unsupported Markdown path
+- Weekly Markdown begins with YAML front matter containing a valid Monday date (YYYY-MM-DD).
+  Files require `author: {name: ..., ntid: ...}` (`ntid` optional), a lowercase
+  slug filename, and a week matching their parent directory. Unsupported Markdown path
   depths are errors. The five template H2 sections occur once each;
   empty sections are allowed. Fenced-code headings are content, not sections.
 - Effort `reporting` accepts `required` (default) or `optional`. The additive field
@@ -53,32 +51,27 @@ are separate increments.
   Optional reporting does not change staffing totals, input validation, or report
   inclusion; quiet weeks still have an empty updates list.
   The lead has an obligation only when listed in the team. Previous
-  weeks and unattributed updates never satisfy individual obligations.
+  weeks never satisfy individual obligations.
 - Author matching uses the same identity rule as staffing; there is no fallback
   to name when only one side has an NTID. Outside-roster contributions remain
   valid and do not fulfill another person's obligation. Duplicate authors for
-  an effort/week are errors, even across legacy and new paths, with both paths
-  included in diagnostics. Both layouts may coexist without dropping content.
+  an effort/week are errors, with both paths included in diagnostics.
 - Report schema version 2 includes all effort metadata and the selected week's
-  `updates` list (empty when no submission); each update has nullable `author`,
+  `updates` list (empty when no submission); each update has required `author`,
   with warnings. Ordering is stable. Historical reports use metadata from the
   checked-out Git revision; checking out a snapshot is required for reproduction.
-  Contributions sort by normalized identity, with unattributed legacy content
-  first. Effort input remains version 1; migrating `gitlab` to `ntid` requires
-  explicit correct identifiers rather than inferred usernames.
+  Contributions sort by normalized identity. Effort input uses version 1.
 - Invalid input prevents report generation. Validation errors include source paths.
 
 ## Boundaries
 
-`models.py` owns machine contracts, including separate new and legacy front-matter
-models; `WeekMetadata` itself has no author field. `status.py` owns weekly Markdown parsing.
+`models.py` owns machine contracts, including required-author submission metadata; `WeekMetadata` itself has no author field. `status.py` owns weekly Markdown parsing.
 `repository.py` loads validated inputs and computes warnings. `reports/summary.py`
 assembles WeeklyReport. `cli.py` handles arguments and output files.
 Renderers consume WeeklyReport, never crawl source files themselves. Packaged Jinja
 templates own Markdown layouts and the HTML email wrapper. Email groups by effort,
 author, and section; slides repeat author attribution on every continuation and
-reserve room for the label. Unattributed text is labeled "Legacy update — author
-not recorded". Python computes totals once per effort,
+reserve room for the label. Python computes totals once per effort,
 converts Markdown, and paginates slides. HTML templates autoescape values, Markdown
 metadata uses the literal filter, and authored Markdown remains data rather than
 template source. Undefined template values fail explicitly. The slide
@@ -89,8 +82,8 @@ comments are neutralized so only the generator controls slide boundaries.
 
 CI checks pushes and merge requests. Scheduled reports run on the default branch,
 accept REPORT_WEEK, and publish JSON, Markdown, HTML, and PPTX artifacts.
-Default week is the current UTC
-ISO week. Configure the Friday schedule and timezone in GitLab. No credentials,
+Default week is Monday of the current UTC week, in YYYY-MM-DD format.
+ISO week numbers are not supported. Configure the Friday schedule and timezone in GitLab. No credentials,
 external communications, automatic Git writes, or model calls are needed.
 
 Contribution slides group all five sections for one person within an effort, using

@@ -1,5 +1,5 @@
 {
-  "week": "2026-W39",
+  "week": "2026-09-21",
   "schema_version": 2,
   "efforts": [
     {
@@ -8,6 +8,7 @@
         "id": "project-alpha",
         "name": "Project Alpha",
         "status": "active",
+        "reporting": "required",
         "lead": {
           "name": "Jane Smith",
           "ntid": "jsmith"
@@ -61,21 +62,10 @@
       },
       "updates": [
         {
-          "week": "2026-W39",
-          "author": null,
-          "sections": {
-            "Progress Overview": "Completed integration testing and prepared a customer demonstration.",
-            "Accomplishments": "- Completed System A integration.\n- Closed three test findings.",
-            "Risks / Blockers / Mitigations": "- Hardware delivery delayed two weeks. Mitigation: reordered integration activities.",
-            "Next Week": "- Conduct the customer demonstration.",
-            "Help / Decisions Needed": "None."
-          }
-        },
-        {
-          "week": "2026-W39",
+          "week": "2026-09-21",
           "author": {
-            "name": "Alex Jones",
-            "ntid": "example-ajones"
+            "name": "John Doe",
+            "ntid": "jdoe"
           },
           "sections": {
             "Progress Overview": "Prepared the test environment for this fictional example effort.",
@@ -86,10 +76,10 @@
           }
         },
         {
-          "week": "2026-W39",
+          "week": "2026-09-21",
           "author": {
             "name": "Jane Smith",
-            "ntid": "example-jsmith"
+            "ntid": "jsmith"
           },
           "sections": {
             "Progress Overview": "Prepared the demonstration agenda for this fictional example effort.",
@@ -100,10 +90,49 @@
           }
         }
       ]
+    },
+    {
+      "effort": {
+        "schema_version": 1,
+        "id": "small-efforts",
+        "name": "Small Efforts",
+        "status": "active",
+        "reporting": "optional",
+        "lead": {
+          "name": "Jane Smith",
+          "ntid": "jsmith"
+        },
+        "customer": null,
+        "currency": "USD",
+        "funding": [],
+        "dates": {
+          "start": null,
+          "end": null
+        },
+        "team": [],
+        "tags": [
+          "example"
+        ],
+        "links": [],
+        "funding_total": 0
+      },
+      "updates": [
+        {
+          "week": "2026-09-21",
+          "author": {
+            "name": "Jane Smith",
+            "ntid": "jsmith"
+          },
+          "sections": {
+            "Progress Overview": "- **Export cleanup:** Completed a one-off maintenance request.",
+            "Accomplishments": "- **Export cleanup:** Fixed duplicate rows in the CSV export.\n- **Access review:** Completed the requested repository access audit.",
+            "Risks / Blockers / Mitigations": "None.",
+            "Next Week": "None.",
+            "Help / Decisions Needed": "None."
+          }
+        }
+      ]
     }
   ],
-  "warnings": [
-    "project-alpha: missing weekly update for 2026-W39: John Doe (NTID: jdoe)",
-    "project-alpha: missing weekly update for 2026-W39: Jane Smith (NTID: jsmith)"
-  ]
+  "warnings": []
 }

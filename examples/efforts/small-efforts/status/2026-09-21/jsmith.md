@@ -1,5 +1,5 @@
 ---
-week: 2026-W39
+week: 2026-09-21
 author:
   name: Jane Smith
   ntid: jsmith

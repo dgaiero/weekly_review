@@ -26,7 +26,7 @@ style: |
 
 # Team Weekly Status
 
-## 2026-W39
+## Week of September 21, 2026
 
 ---
 
@@ -35,7 +35,7 @@ style: |
 
 - Proposed: 0
 
-- Active: 1
+- Active: 2
 
 - On Hold: 0
 
@@ -52,16 +52,6 @@ style: |
 - Total funding: 350,000 USD
 
 - Active staffing: 0.65 FTE
-
-
----
-
-## Reporting notes
-
-
-- project\-alpha: missing weekly update for 2026\-W39: John Doe \(NTID: jdoe\)
-
-- project\-alpha: missing weekly update for 2026\-W39: Jane Smith \(NTID: jsmith\)
 
 
 ---
@@ -86,44 +76,7 @@ style: |
 
 ## Project Alpha
 
-Legacy update — author not recorded
-
-
-### Progress Overview
-
-Completed integration testing and prepared a customer demonstration.
-
-
-### Accomplishments
-
-- Completed System A integration.
-
-- Closed three test findings.
-
-
-### Risks / Blockers / Mitigations
-
-- Hardware delivery delayed two weeks. Mitigation: reordered integration activities.
-
-
-### Next Week
-
-- Conduct the customer demonstration.
-
-
-### Help / Decisions Needed
-
-None.
-
-
-
----
-
-<!-- _class: contribution -->
-
-## Project Alpha
-
-Alex Jones \(NTID: example\-ajones\)
+John Doe \(NTID: jdoe\)
 
 
 ### Progress Overview
@@ -160,7 +113,7 @@ None.
 
 ## Project Alpha
 
-Jane Smith \(NTID: example\-jsmith\)
+Jane Smith \(NTID: jsmith\)
 
 
 ### Progress Overview
@@ -183,6 +136,57 @@ None.
 ### Next Week
 
 - Walk through the demonstration agenda.
+
+
+### Help / Decisions Needed
+
+None.
+
+
+
+---
+
+## Small Efforts
+
+
+- Lead: Jane Smith
+
+- Status: active
+
+- Funding: 0 USD
+
+- Staffing: 0 FTE
+
+
+---
+
+<!-- _class: contribution -->
+
+## Small Efforts
+
+Jane Smith \(NTID: jsmith\)
+
+
+### Progress Overview
+
+- **Export cleanup:** Completed a one-off maintenance request.
+
+
+### Accomplishments
+
+- **Export cleanup:** Fixed duplicate rows in the CSV export.
+
+- **Access review:** Completed the requested repository access audit.
+
+
+### Risks / Blockers / Mitigations
+
+None.
+
+
+### Next Week
+
+None.
 
 
 ### Help / Decisions Needed

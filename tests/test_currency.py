@@ -25,7 +25,7 @@ def effort(amount=1000, **metadata):
 def test_currency_survives_json_and_labels_all_reports(currencies):
     metadata, code = currencies
     report = WeeklyReport(
-        week="2026-W39", warnings=[], efforts=[ReportEffort(effort=effort(**metadata))]
+        week="2026-09-21", warnings=[], efforts=[ReportEffort(effort=effort(**metadata))]
     )
     assert json.loads(report.model_dump_json())["efforts"][0]["effort"]["currency"] == code
     for output in (email_markdown(report), slides_markdown(report)):
@@ -36,7 +36,7 @@ def test_currency_survives_json_and_labels_all_reports(currencies):
 
 def test_portfolio_totals_group_matching_currencies():
     report = WeeklyReport(
-        week="2026-W39",
+        week="2026-09-21",
         warnings=[],
         efforts=[
             ReportEffort(effort=effort(1000)),
@@ -50,7 +50,7 @@ def test_portfolio_totals_group_matching_currencies():
 
 
 def test_empty_portfolio_displays_zero_usd():
-    report = WeeklyReport(week="2026-W39", warnings=[], efforts=[])
+    report = WeeklyReport(week="2026-09-21", warnings=[], efforts=[])
     assert "Total funding: 0 USD" in email_markdown(report)
     assert "Total funding: 0 USD" in slides_markdown(report)
 

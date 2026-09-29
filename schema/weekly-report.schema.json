@@ -313,19 +313,14 @@
       "additionalProperties": false,
       "properties": {
         "week": {
+          "description": "Monday starting the reporting week, in YYYY-MM-DD format.",
+          "format": "date",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
           "title": "Week",
           "type": "string"
         },
         "author": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Person"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
+          "$ref": "#/$defs/Person"
         },
         "sections": {
           "additionalProperties": {
@@ -337,6 +332,7 @@
       },
       "required": [
         "week",
+        "author",
         "sections"
       ],
       "title": "WeeklyStatus",
@@ -346,6 +342,9 @@
   "additionalProperties": false,
   "properties": {
     "week": {
+      "description": "Monday starting the reporting week, in YYYY-MM-DD format.",
+      "format": "date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
       "title": "Week",
       "type": "string"
     },

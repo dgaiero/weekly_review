@@ -19,12 +19,14 @@ Text = Annotated[str, Field(min_length=1)]
 
 
 def validate_week(value: str) -> str:
-    if not re.fullmatch(r"[0-9]{4}-W[0-9]{2}", value):
-        raise ValueError("week must use YYYY-Www format")
+    if not re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", value):
+        raise ValueError("week must use YYYY-MM-DD format (Monday's date)")
     try:
-        date.fromisocalendar(int(value[:4]), int(value[6:]), 1)
+        monday = date.fromisoformat(value)
     except ValueError as exc:
-        raise ValueError(f"invalid ISO week: {value}") from exc
+        raise ValueError(f"invalid week date: {value}") from exc
+    if monday.weekday() != 0:
+        raise ValueError("week must be a Monday")
     return value
 
 
@@ -112,7 +114,19 @@ class Effort(Model):
 
 
 class WeekMetadata(Model):
-    week: str
+    week: Annotated[
+        str,
+        Field(
+            pattern=r"^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+            description="Monday starting the reporting week, in YYYY-MM-DD format.",
+            json_schema_extra={"format": "date"},
+        ),
+    ]
+
+    @field_validator("week", mode="before")
+    @classmethod
+    def yaml_date(cls, value: object) -> object:
+        return value.isoformat() if type(value) is date else value
 
     @field_validator("week")
     @classmethod
@@ -124,11 +138,7 @@ class SubmissionMetadata(WeekMetadata):
     author: Person
 
 
-class LegacyStatusMetadata(WeekMetadata):
-    author: Person | None = None
-
-
-class WeeklyStatus(LegacyStatusMetadata):
+class WeeklyStatus(SubmissionMetadata):
     sections: dict[str, str]
 
 

@@ -1,8 +1,8 @@
 ---
-week: 2026-W39
+week: 2026-09-21
 author:
-  name: Alex Jones
-  ntid: example-ajones
+  name: John Doe
+  ntid: jdoe
 ---
 
 ## Progress Overview
