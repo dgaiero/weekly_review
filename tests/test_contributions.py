@@ -54,7 +54,7 @@ def test_collects_both_authors_in_identity_order_and_preserves_content(tmp_path)
 
 
 @pytest.mark.parametrize(
-    "author,missing",
+    ("author", "missing"),
     [
         ({"name": "Renamed", "ntid": " JANE "}, ["Alex"]),
         ({"name": "Jane"}, ["Jane", "Alex"]),
@@ -81,7 +81,7 @@ def test_names_match_without_ntid_and_identifier_namespaces_do_not_collide(tmp_p
 
 
 @pytest.mark.parametrize(
-    "status,team,want",
+    ("status", "team", "want"),
     [
         ("active", [JANE, ALEX], 2),
         ("on_hold", [JANE], 0),
@@ -132,7 +132,7 @@ def test_duplicate_team_identity_is_error(tmp_path, team):
 
 
 @pytest.mark.parametrize(
-    "filename,author,week,message",
+    ("filename", "author", "week", "message"),
     [
         (f"{WEEK}/jane.md", None, WEEK, "author"),
         (f"{WEEK}/jane.md", {}, WEEK, "name"),
@@ -168,7 +168,7 @@ def test_staffing_uses_ntid_once_per_member_not_per_submission(tmp_path):
 
 
 @pytest.mark.parametrize("team", [[], [JANE]])
-@pytest.mark.parametrize("reporting,want", [(None, 1), ("required", 1), ("optional", 0)])
+@pytest.mark.parametrize(("reporting", "want"), [(None, 1), ("required", 1), ("optional", 0)])
 def test_reporting_policy_controls_missing_update_warnings(tmp_path, team, reporting, want):
     effort = portfolio(tmp_path, team=team, reporting=reporting)
     submission(effort, "2026-09-14/jane.md", JANE, week="2026-09-14")

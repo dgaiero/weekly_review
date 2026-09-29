@@ -4,7 +4,7 @@ from datetime import date
 
 from jinja2 import Environment, PackageLoader, StrictUndefined, select_autoescape
 
-from .markdown import author_label, literal
+from team_status.reports.markdown import author_label, literal
 
 _environment = Environment(
     loader=PackageLoader("team_status.reports", "templates"),

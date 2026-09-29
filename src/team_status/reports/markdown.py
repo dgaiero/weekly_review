@@ -3,7 +3,7 @@
 import re
 from collections import Counter
 
-from ..models import EffortStatus, Person, WeeklyReport
+from team_status.models import EffortStatus, Person, WeeklyReport
 
 
 def author_label(author: Person) -> str:

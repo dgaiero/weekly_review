@@ -1,11 +1,13 @@
 """Generate Marp Markdown with explicit, bounded slide content."""
 
+import itertools
+
 from markdown_it import MarkdownIt
 
-from ..models import WeeklyReport
-from ..status import SECTIONS
-from .markdown import author_label, literal, overview_context
-from .templating import render
+from team_status.models import WeeklyReport
+from team_status.reports.markdown import author_label, literal, overview_context
+from team_status.reports.templating import render
+from team_status.status import SECTIONS
 
 
 def safe_content(text: str) -> str:
@@ -33,14 +35,14 @@ def pages(text: str, context: str, *, line_budget: int = 11) -> list[str]:
         if token.map and (token.level == 0 or (token.type == "list_item_open" and token.level == 1)):
             starts.add(token.map[0])
     bounds = sorted(starts)
-    chunks = ["\n".join(lines[a:b]).strip() for a, b in zip(bounds, bounds[1:], strict=False)]
+    chunks = ["\n".join(lines[a:b]).strip() for a, b in itertools.pairwise(bounds)]
     result, current = [], []
     weight = 0
     for chunk in filter(None, chunks):
         cost = sum(max(1, (len(line) + 69) // 70) for line in chunk.splitlines()) + 1
         if cost > line_budget or len(chunk) > 850:
             raise ValueError(f"{context}: content block is too long for a slide; split it into shorter paragraphs or bullets")
-        if current and (weight + cost > line_budget or len("\n\n".join(current + [chunk])) > 850):
+        if current and (weight + cost > line_budget or len("\n\n".join([*current, chunk])) > 850):
             result.append("\n\n".join(current))
             current, weight = [], 0
         current.append(chunk)
@@ -53,7 +55,7 @@ def pages(text: str, context: str, *, line_budget: int = 11) -> list[str]:
 def slides_markdown(report: WeeklyReport) -> str:
     slides = [render("slide-title.md.j2", report=report)]
 
-    def add(title: str, content: str, subtitle: str = "", author: str = ""):
+    def add(title: str, content: str, subtitle: str = "", author: str = "") -> None:
         if len(title) > 95 or len(subtitle) > 100:
             raise ValueError("slide title is too long; split or shorten the effort name")
         if len(author) > 100:

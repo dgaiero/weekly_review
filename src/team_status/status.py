@@ -5,8 +5,8 @@ from pathlib import Path
 
 from markdown_it import MarkdownIt
 
-from .models import SubmissionMetadata, WeeklyStatus
-from .yaml_io import load_yaml
+from team_status.models import SubmissionMetadata, WeeklyStatus
+from team_status.yaml_io import load_yaml
 
 SECTIONS = (
     "Progress Overview",

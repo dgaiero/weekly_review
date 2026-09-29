@@ -7,11 +7,11 @@ import sys
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
-from .models import Effort, SubmissionMetadata, WeeklyReport, validate_week
-from .reports.email import email_html, email_markdown
-from .reports.slides import slides_markdown
-from .reports.summary import build_report
-from .repository import load_repository
+from team_status.models import Effort, SubmissionMetadata, WeeklyReport, validate_week
+from team_status.reports.email import email_html, email_markdown
+from team_status.reports.slides import slides_markdown
+from team_status.reports.summary import build_report
+from team_status.repository import load_repository
 
 
 def main() -> int:

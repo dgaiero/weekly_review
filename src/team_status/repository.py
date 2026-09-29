@@ -5,9 +5,9 @@ from pathlib import Path
 
 import yaml
 
-from .models import Effort, EffortStatus, WeeklyStatus, validate_week
-from .status import parse_status
-from .yaml_io import load_yaml
+from team_status.models import Effort, EffortStatus, WeeklyStatus, validate_week
+from team_status.status import parse_status
+from team_status.yaml_io import load_yaml
 
 
 @dataclass

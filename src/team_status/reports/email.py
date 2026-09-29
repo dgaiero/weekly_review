@@ -6,10 +6,10 @@ from importlib.resources import files
 from markdown_it import MarkdownIt
 from markupsafe import Markup
 
-from ..models import WeeklyReport
-from ..status import SECTIONS
-from .markdown import overview_context
-from .templating import render
+from team_status.models import WeeklyReport
+from team_status.reports.markdown import overview_context
+from team_status.reports.templating import render
+from team_status.status import SECTIONS
 
 
 def email_markdown(report: WeeklyReport) -> str:
@@ -22,7 +22,7 @@ def email_html(markdown: str) -> str:
     tokens = parser.parse(markdown)
     styles = json.loads(files("team_status.reports").joinpath("templates/email-styles.json").read_text(encoding="utf-8"))
 
-    def style_tokens(items):
+    def style_tokens(items) -> None:
         for token in items:
             if token.tag in styles:
                 token.attrSet("style", styles[token.tag])

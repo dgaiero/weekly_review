@@ -1,7 +1,7 @@
 """Normalize validated repository data for downstream renderers."""
 
-from ..models import ReportEffort, WeeklyReport
-from ..repository import Repository
+from team_status.models import ReportEffort, WeeklyReport
+from team_status.repository import Repository
 
 
 def build_report(repository: Repository, week: str) -> WeeklyReport:
