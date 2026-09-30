@@ -8,14 +8,17 @@ GitLab CI, and OpenCode guidance. SMTP email delivery is supported; the browser 
 ## Quick start
 
 Install [uv](https://docs.astral.sh/uv/getting-started/installation/) and
-[Task](https://taskfile.dev/docs/installation), then run:
+[Task](https://taskfile.dev/docs/installation), Node.js 22+, and pnpm 11.19.0,
+then run:
 
 ```sh
 task setup
 task check
-task slides:setup
 task demo
 ```
+
+`task setup` installs both Python dependencies and Node slide tools. Use
+`task python:setup` or `task slides:setup` to install either separately.
 
 The demo writes report artifacts, including PowerPoint, to
 `examples/build/demo/2026-09-21/` from fictional data under `examples/`.

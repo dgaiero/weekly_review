@@ -59,6 +59,11 @@ tasks:
 
 
   setup:
+    desc: Install the locked Python environment and Node slide tools
+    cmds:
+      - task: python:setup
+      - task: slides:setup
+  python:setup:
     desc: Install the locked Python environment
     cmds: [uv sync --locked]
   # Code Quality
